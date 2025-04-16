@@ -24,18 +24,30 @@
       <h2>TRACK</h2>
       <ul>
         <li onclick="showDashboard()">Dashboard</li>
-        <li id="add-task-nav" onclick="showAddTask()" style="display: none;">Add Task</li>
+        <li id="add-task-nav" onclick="showAddTask()">Add Task</li>
+        <li onclick="showTasks()">Tasks</li>
       </ul>
     </aside>
 
     <main class="main-content">
-        <div id="add-task-section" style="display: none;">
-            <h3>Add Task</h3>
-            <input type="text" id="task-name" placeholder="Task Name" />
-            <textarea id="task-description" placeholder="Task Description"></textarea>
-            <button class="styled-btn" onclick="addTask()">Add Task</button>
+      <div id="add-task-section" style="display: none;">
+        <h3>Add Task</h3>
+        <input type="text" id="task-name" placeholder="Task Name" />
+        <textarea id="task-description" placeholder="Task Description"></textarea>
+        <button class="styled-btn" onclick="addTask()">Add Task</button>
         
-          </div>
+      </div>
+
+      <div id="tasks-section" style="display: none;"></div>
+          <!-- <h3>Tasks</h3> -->
+           
+      <div id="summary-section">
+          <div id="total-time" class="summary-box"></div>
+            <div id="recent-tasks" class="summary-box">
+              <h3>Recent Tasks</h3>
+              <ul id="recent-tasks-list"></ul>
+            </div>
+      </div>
           
 
       <div id="tasks"></div>

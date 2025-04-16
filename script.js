@@ -1,5 +1,6 @@
 let currentTaskIndex = null;
 let timerInterval = null;
+let viewMode = showDashboard;
 
 function toggleLoginForm(forceShow = null) {
   const form = document.getElementById("login-form");
@@ -44,23 +45,37 @@ function login() {
 
 function logout() {
   localStorage.removeItem("user");
-  localStorage.removeItem("tasks");
+  // localStorage.removeItem("currentTaskIndex");
+  // document.getElementById("tasks").innerHTML = ''
   location.reload();
 }
 
+
 function showDashboard() {
+  viewMode = "dashboard";
   document.getElementById("add-task-section").style.display = "none";
+  document.getElementById("tasks-section").style.display = "none";
   loadTasks();
 }
 
 function showAddTask() {
   const user = localStorage.getItem("user");
-  if(!user) {
-    alert("Please login first to add a task")
-    toggleLoginForm(true)
-    return
+  if (!user) {
+    alert("Please login first to add a task");
+    toggleLoginForm(true);
+    return;
   }
+  viewMode = "addTask";
   document.getElementById("add-task-section").style.display = "block";
+  document.getElementById("tasks-section").style.display = "none";
+  loadTasks(); 
+}
+
+function showTasks(){
+  viewMode = "tasks"
+  document.getElementById("add-task-section").style.display = "none";
+  document.getElementById("tasks-section").style.display = "block";
+  loadTasks()
 }
 
 function addTask() {
@@ -74,8 +89,9 @@ function addTask() {
     }
 
     tasks.push({ name, description: desc, time: 0 });
-    currentTaskIndex = tasks.length - 1;
+    //currentTaskIndex = tasks.length - 1;
     localStorage.setItem("tasks", JSON.stringify(tasks));
+    //localStorage.setItem("currentTaskIndex", currentTaskIndex);
 
     document.getElementById("task-name").value = '';
     document.getElementById("task-description").value = '';
@@ -90,6 +106,8 @@ function addTask() {
   
 function startTaskTimer(index) {
   currentTaskIndex = index
+  localStorage.setItem("currentTaskIndex", currentTaskIndex);
+
   if (currentTaskIndex !== null) {
     clearInterval(timerInterval);
     timerInterval = setInterval(() => {
@@ -130,16 +148,39 @@ function deleteTask(index){
 function loadTasks() {
 
   let tasks = JSON.parse(localStorage.getItem("tasks"));
-  
-  if (!Array.isArray(tasks)) {
-    tasks = [];
-  }
+  if (!Array.isArray(tasks)) tasks = [];
 
-  //const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+  const storedIndex = localStorage.getItem("currentTaskIndex");
+  currentTaskIndex = storedIndex !== null ? parseInt(storedIndex) : null;
+
   const taskContainer = document.getElementById("tasks");
   taskContainer.innerHTML = ''; 
 
-  tasks.forEach((task, index) => {
+  if (viewMode === "full") {
+    // Full view 
+    tasks.forEach((task, index) => {
+      let hours = Math.floor(task.time / 3600);
+      let minutes = Math.floor((task.time % 3600) / 60);
+      let seconds = task.time % 60;
+
+      const taskEl = document.createElement("div");
+      taskEl.className = "task";
+      taskEl.innerHTML = `
+        <strong>${task.name}</strong>
+        <p>${task.description}</p>
+        <p>Duration: ${hours}h ${minutes}m ${seconds}s</p>
+        <div class="tasks" style="display: block; margin-top: 10px;">
+          <button class="styled-btn" onclick="startTaskTimer(${index})">Start</button>
+          <button class="styled-btn" onclick="stopTaskTimer()">Stop</button>
+          <button class="styled-btn" onclick="editCurrentTask(${index})">Edit</button>
+          <button class="styled-btn" onclick="deleteTask(${index})">Delete Task</button>
+        </div>
+      `;
+      taskContainer.appendChild(taskEl);
+    });
+  } else if (viewMode === "dashboard" && currentTaskIndex !== null && tasks[currentTaskIndex]) {
+    // Dashboard view 
+    const task = tasks[currentTaskIndex];
     let hours = Math.floor(task.time / 3600);
     let minutes = Math.floor((task.time % 3600) / 60);
     let seconds = task.time % 60;
@@ -148,29 +189,53 @@ function loadTasks() {
     taskEl.className = "task";
     taskEl.innerHTML = `
       <strong>${task.name}</strong>
-      <p>${task.description}</p>
       <p>Duration: ${hours}h ${minutes}m ${seconds}s</p>
-      <div class="tasks" style="display: block; margin-top: 10px;">
-        <button class="styled-btn" onclick="startTaskTimer(${index})">Start</button>
-        <button class="styled-btn" onclick="stopTaskTimer()">Stop</button>
-        <button class="styled-btn" onclick="editCurrentTask(${index})">Edit</button>
-        <button class="styled-btn" onclick="deleteTask(${index})">Delete Task</button>
-
-      </div>
     `;
     taskContainer.appendChild(taskEl);
-  });
-   
+  } else if (viewMode === "tasks") {
+    // Tasks section
+    if (tasks.length === 0) {
+      taskContainer.innerHTML = '<p>No tasks available. Add a new task.</p>';
+    } else {
+      tasks.forEach((task, index) => {
+        let hours = Math.floor(task.time / 3600);
+        let minutes = Math.floor((task.time % 3600) / 60);
+        let seconds = task.time % 60;
+
+        const taskEl = document.createElement("div");
+        taskEl.className = "task";
+        taskEl.innerHTML = `
+          <strong>${task.name}</strong>
+          <p>Duration: ${hours}h ${minutes}m ${seconds}s</p>
+          <div class="tasks" style="display: block; margin-top: 10px;">
+            <button class="styled-btn" onclick="startTaskTimer(${index})">Start</button>
+            <button class="styled-btn" onclick="stopTaskTimer()">Stop</button>
+            <button class="styled-btn" onclick="editCurrentTask(${index})">Edit</button>
+            <button class="styled-btn" onclick="deleteTask(${index})">Delete Task</button>
+          </div>
+        `;
+        taskContainer.appendChild(taskEl);
+      });
+    }
+  } 
 }
-  
+
 
 window.onload = function () {
-
-  document.getElementById("add-task-nav").style.display = "block";
   const user = localStorage.getItem("user");
+
   if (user) {
     document.getElementById("login-btn").innerText = "Logout";
     document.getElementById("login-btn").onclick = logout;
-    loadTasks();
+    document.getElementById("add-task-nav").style.display = "block";
+  } else {
+    document.getElementById("login-btn").innerText = "Login";
+    document.getElementById("login-btn").onclick = toggleLoginForm;
+   // document.getElementById("add-task-nav").style.display = "none";
   }
+
+  viewMode = "dashboard"; 
+  loadTasks();
 }
+
+
