@@ -1,0 +1,176 @@
+
+   * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  
+  body, html {
+    height: 100%;
+    background: #f6f9fc;
+    overflow: hidden;
+  }
+  
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #1b1fec;
+    color: white;
+    padding: 15px 20px;
+  }
+  
+  .top-bar button {
+    padding: 10px 20px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .top-bar button:hover {
+    background: #0056b3;
+  }
+  
+  .login-popup {
+    position: fixed;
+    top: 66%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    max-width: 300px;
+    width: 90%;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+  }
+  
+  
+  .login-popup input,
+  .login-popup button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+  }
+  
+  #dashboard-section {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 60px);
+  }
+  
+  /* .sidebar {
+    width: 220px;
+    background: #1b95ec;
+    color: white;
+    padding: 20px;
+  } */
+
+.sidebar {
+    width: 100%;
+    background: #1b95ec;
+    color: white;
+    padding: 20px;
+  } 
+  
+  .sidebar ul {
+    list-style: none;
+  }
+  
+  .sidebar li {
+    margin: 20px 0;
+    cursor: pointer;
+  }
+  
+.sidebar li:hover {
+    text-decoration: underline;
+}
+  
+.main-content {
+    flex-grow: 1;
+    padding: 30px;
+    overflow-y: auto;
+}
+  
+.task {
+    background: white;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-left: 5px solid #1b1fec;
+    border-radius: 10px;
+}
+  
+.styled-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(90deg, #5A4FF3, #3d8bff);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+  
+.styled-btn:hover {
+    background: #1b1fec;
+}
+  
+.add-task-box input,
+.add-task-box textarea {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+#add-task-section input[type="text"],
+#add-task-section textarea {
+  width: 100%;
+  padding: 12px 15px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 1rem;
+  background: #fff;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+#add-task-section input[type="text"]:focus,
+#add-task-section textarea:focus {
+  outline: none;
+  border-color: #5A4FF3;
+  box-shadow: 0 0 0 2px rgba(90, 79, 243, 0.2);
+}
+/* #add-task-section {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    max-width: 600px;
+    margin: 0 auto;
+  } */
+  
+  
+
+.title{
+  font-size: 20px;
+}
+
+
+ @media (min-width: 768px) {
+    #dashboard-section {
+      flex-direction: column;
+}
+  
+.sidebar {
+      width: 100%;
+      display: flex;
+      justify-content: space-around;
+    }
+}
+  
