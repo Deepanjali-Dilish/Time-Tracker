@@ -51,10 +51,13 @@ function logout() {
 }
 
 
+
+
 function showDashboard() {
   viewMode = "dashboard";
   document.getElementById("add-task-section").style.display = "none";
   document.getElementById("tasks-section").style.display = "none";
+  document.getElementById("summary-section").style.display = "block";
   loadTasks();
 }
 
@@ -68,6 +71,7 @@ function showAddTask() {
   viewMode = "addTask";
   document.getElementById("add-task-section").style.display = "block";
   document.getElementById("tasks-section").style.display = "none";
+  document.getElementById("summary-section").style.display = "none";
   loadTasks(); 
 }
 
@@ -75,6 +79,7 @@ function showTasks(){
   viewMode = "tasks"
   document.getElementById("add-task-section").style.display = "none";
   document.getElementById("tasks-section").style.display = "block";
+  document.getElementById("summary-section").style.display = "none";
   loadTasks()
 }
 
@@ -88,7 +93,7 @@ function addTask() {
       tasks = []
     }
 
-    tasks.push({ name, description: desc, time: 0 });
+    tasks.push({ name, description: desc, time: 0, sessions: [] });
     //currentTaskIndex = tasks.length - 1;
     localStorage.setItem("tasks", JSON.stringify(tasks));
     //localStorage.setItem("currentTaskIndex", currentTaskIndex);
@@ -104,24 +109,23 @@ function addTask() {
   }
 }
   
-function startTaskTimer(index) {
-  currentTaskIndex = index
+function startTaskTimer(index){
+  currentTaskIndex = index;
   localStorage.setItem("currentTaskIndex", currentTaskIndex);
 
-  if (currentTaskIndex !== null) {
-    clearInterval(timerInterval);
-    timerInterval = setInterval(() => {
-      const tasks = JSON.parse(localStorage.getItem("tasks"));
-      tasks[currentTaskIndex].time += 1;
-      localStorage.setItem("tasks", JSON.stringify(tasks));
-      loadTasks();
-    }, 1000);
-  }
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    const tasks = JSON.parse(localStorage.getItem("tasks"));
+    tasks[currentTaskIndex].time += 1;
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+    loadTasks();
+  }, 1000);
 }
 
 function stopTaskTimer() {
   clearInterval(timerInterval);
 }
+
 
 function editCurrentTask(index) {
   currentTaskIndex = index
@@ -146,20 +150,39 @@ function deleteTask(index){
 }
 
 function loadTasks() {
-
   let tasks = JSON.parse(localStorage.getItem("tasks"));
   if (!Array.isArray(tasks)) tasks = [];
 
   const storedIndex = localStorage.getItem("currentTaskIndex");
   currentTaskIndex = storedIndex !== null ? parseInt(storedIndex) : null;
 
-  const taskContainer = document.getElementById("tasks");
-  taskContainer.innerHTML = ''; 
+  const taskContainer = document.getElementById("tasks")
+  taskContainer.innerHTML = '';
+
+  // total time today
+
+  let totalSeconds = tasks.reduce((sum, task) => sum + task.time, 0);
+  let hrs = Math.floor(totalSeconds / 3600);
+  let mins = Math.floor((totalSeconds % 3600) / 60);
+  let secs = totalSeconds % 60
+  document.getElementById("total-time").innerText = `Total Time Tracked Today: ${hrs}h ${mins}m ${secs}`;
+
+  // recent task
+  const recentList = document.getElementById("recent-tasks-list");
+  recentList.innerHTML = '';
+  let recentTasks = tasks.slice(-3).reverse();
+  recentTasks.forEach(task => {
+    const item = document.createElement("li");
+    item.textContent = task.name
+    recentList.appendChild(item);
+  });
 
   if (viewMode === "full") {
-    // Full view 
+
+    // full view
+
     tasks.forEach((task, index) => {
-      let hours = Math.floor(task.time / 3600);
+      let hours = Math.floor(task.time % 3600);
       let minutes = Math.floor((task.time % 3600) / 60);
       let seconds = task.time % 60;
 
@@ -168,8 +191,8 @@ function loadTasks() {
       taskEl.innerHTML = `
         <strong>${task.name}</strong>
         <p>${task.description}</p>
-        <p>Duration: ${hours}h ${minutes}m ${seconds}s</p>
-        <div class="tasks" style="display: block; margin-top: 10px;">
+        <p>Duration:${hours}h ${minutes}m ${seconds}s</p>
+        <div class="tasks" style="display: block; margin-top: 10px">
           <button class="styled-btn" onclick="startTaskTimer(${index})">Start</button>
           <button class="styled-btn" onclick="stopTaskTimer()">Stop</button>
           <button class="styled-btn" onclick="editCurrentTask(${index})">Edit</button>
@@ -178,11 +201,13 @@ function loadTasks() {
       `;
       taskContainer.appendChild(taskEl);
     });
-  } else if (viewMode === "dashboard" && currentTaskIndex !== null && tasks[currentTaskIndex]) {
-    // Dashboard view 
+  }else if (viewMode === "dashboard" && currentTaskIndex !== null && tasks[currentTaskIndex]){
+
+    // dashboard view
+
     const task = tasks[currentTaskIndex];
     let hours = Math.floor(task.time / 3600);
-    let minutes = Math.floor((task.time % 3600) / 60);
+    let minutes = Math.floor((task.time % 3600)/ 60);
     let seconds = task.time % 60;
 
     const taskEl = document.createElement("div");
@@ -190,36 +215,40 @@ function loadTasks() {
     taskEl.innerHTML = `
       <strong>${task.name}</strong>
       <p>Duration: ${hours}h ${minutes}m ${seconds}s</p>
-    `;
+    `
     taskContainer.appendChild(taskEl);
-  } else if (viewMode === "tasks") {
-    // Tasks section
-    if (tasks.length === 0) {
-      taskContainer.innerHTML = '<p>No tasks available. Add a new task.</p>';
-    } else {
+  
+  }else if (viewMode === "tasks"){
+
+    // tasks view
+    if (tasks.length === 0){
+      taskContainer.innerHTML = '<p>No tasks available. Add a new task.</p>'
+    }else{
       tasks.forEach((task, index) => {
         let hours = Math.floor(task.time / 3600);
         let minutes = Math.floor((task.time % 3600) / 60);
         let seconds = task.time % 60;
-
+    
         const taskEl = document.createElement("div");
         taskEl.className = "task";
         taskEl.innerHTML = `
           <strong>${task.name}</strong>
-          <p>Duration: ${hours}h ${minutes}m ${seconds}s</p>
-          <div class="tasks" style="display: block; margin-top: 10px;">
+          <p>${task.description}</p>
+          <p>Duration:${hours}h ${minutes}m ${seconds}s</p>
+          <div class="tasks" style="display: block; margin-top: 10px">
             <button class="styled-btn" onclick="startTaskTimer(${index})">Start</button>
             <button class="styled-btn" onclick="stopTaskTimer()">Stop</button>
             <button class="styled-btn" onclick="editCurrentTask(${index})">Edit</button>
             <button class="styled-btn" onclick="deleteTask(${index})">Delete Task</button>
+            <button class="styled-btn" onclick="showIndividualTotal(${index})">Total</button>
           </div>
+          <p id="total-display-${index}" style="font-weight: bold; color: #333;"></p>
         `;
-        taskContainer.appendChild(taskEl);
-      });
-    }
-  } 
+        taskContainer.appendChild(taskEl)
+      })
+    }  
+  }
 }
-
 
 window.onload = function () {
   const user = localStorage.getItem("user");
@@ -238,4 +267,17 @@ window.onload = function () {
   loadTasks();
 }
 
+
+function showIndividualTotal(index) {
+  const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+  const task = tasks[index];
+  const totalSeconds = task.time;
+
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  const displayEl = document.getElementById(`total-display-${index}`);
+  displayEl.innerText = `Total Time: ${hours}h ${minutes}m ${seconds}s`;
+}
 
