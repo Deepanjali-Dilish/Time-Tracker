@@ -93,7 +93,9 @@ function addTask() {
       tasks = []
     }
 
-    tasks.push({ name, description: desc, time: 0, sessions: [] });
+    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+    tasks.push({ name, description: desc, time: 0, created: today });
+
     //currentTaskIndex = tasks.length - 1;
     localStorage.setItem("tasks", JSON.stringify(tasks));
     //localStorage.setItem("currentTaskIndex", currentTaskIndex);
@@ -110,6 +112,7 @@ function addTask() {
 }
   
 function startTaskTimer(index){
+  console.log(index)
   currentTaskIndex = index;
   localStorage.setItem("currentTaskIndex", currentTaskIndex);
 
@@ -120,7 +123,10 @@ function startTaskTimer(index){
     localStorage.setItem("tasks", JSON.stringify(tasks));
     loadTasks();
   }, 1000);
+
 }
+
+
 
 function stopTaskTimer() {
   clearInterval(timerInterval);
@@ -149,6 +155,19 @@ function deleteTask(index){
   loadTasks()
 }
 
+function showIndividualTotal(index) {
+  const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+  const task = tasks[index];
+  const totalSeconds = task.time;
+
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  const displayEl = document.getElementById(`total-display-${index}`);
+  displayEl.innerText = `Total Time: ${hours}h ${minutes}m ${seconds}s`;
+}
+
 function loadTasks() {
   let tasks = JSON.parse(localStorage.getItem("tasks"));
   if (!Array.isArray(tasks)) tasks = [];
@@ -165,7 +184,7 @@ function loadTasks() {
   let hrs = Math.floor(totalSeconds / 3600);
   let mins = Math.floor((totalSeconds % 3600) / 60);
   let secs = totalSeconds % 60
-  document.getElementById("total-time").innerText = `Total Time Tracked Today: ${hrs}h ${mins}m ${secs}`;
+  document.getElementById("total-time").innerText = `Total Time Tracked Today: ${hrs}h ${mins}m ${secs}s`;
 
   // recent task
   const recentList = document.getElementById("recent-tasks-list");
@@ -233,16 +252,15 @@ function loadTasks() {
         taskEl.className = "task";
         taskEl.innerHTML = `
           <strong>${task.name}</strong>
-          <p>${task.description}</p>
-          <p>Duration:${hours}h ${minutes}m ${seconds}s</p>
+          <p class="space">${task.description}</p>
+          <p class="space">Duration:${hours}h ${minutes}m ${seconds}s</p>
           <div class="tasks" style="display: block; margin-top: 10px">
-            <button class="styled-btn" onclick="startTaskTimer(${index})">Start</button>
+            <button class="styled-btn" onclick="startTaskTimer(${index})" type="button">Start</button>
             <button class="styled-btn" onclick="stopTaskTimer()">Stop</button>
-            <button class="styled-btn" onclick="editCurrentTask(${index})">Edit</button>
-            <button class="styled-btn" onclick="deleteTask(${index})">Delete Task</button>
-            <button class="styled-btn" onclick="showIndividualTotal(${index})">Total</button>
+            <button class="styled-btn" onclick="editCurrentTask(${index})" type="button">Edit</button>
+            <button class="styled-btn" id="style-btn" onclick="deleteTask(${index})">Delete Task</button>
           </div>
-          <p id="total-display-${index}" style="font-weight: bold; color: #333;"></p>
+          
         `;
         taskContainer.appendChild(taskEl)
       })
@@ -268,16 +286,55 @@ window.onload = function () {
 }
 
 
-function showIndividualTotal(index) {
-  const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-  const task = tasks[index];
-  const totalSeconds = task.time;
+function toggleSubmenu() {
+  const dailyTasks = document.getElementById("daily-tasks");
+  const arrow = document.getElementById("arrow");
 
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
+  const isVisible = dailyTasks.style.display === "block";
 
-  const displayEl = document.getElementById(`total-display-${index}`);
-  displayEl.innerText = `Total Time: ${hours}h ${minutes}m ${seconds}s`;
+  dailyTasks.style.display = isVisible ? "none" : "block";
+  
+
+  arrow.innerHTML = isVisible ? "&#9662;" : "&#9650;";
 }
+
+function showDailyTasks() {
+  viewMode = "tasks";
+  document.getElementById("add-task-section").style.display = "none";
+  document.getElementById("tasks-section").style.display = "block";
+  document.getElementById("summary-section").style.display = "none";
+
+  const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+  const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+
+  const taskContainer = document.getElementById("tasks");
+  taskContainer.innerHTML = '';
+
+  // Ensure we're checking the created date correctly
+  const dailyTasks = tasks.filter(task => task.created && task.created === today);
+
+  if (dailyTasks.length === 0) {
+    taskContainer.innerHTML = "<p>No daily tasks for today.</p>";
+  } else {
+    dailyTasks.forEach((task, index) => {
+      let hours = Math.floor(task.time / 3600);
+      let minutes = Math.floor((task.time % 3600) / 60);
+      let seconds = task.time % 60;
+
+      const taskEl = document.createElement("div");
+      taskEl.className = "task";
+      taskEl.innerHTML = `
+        <strong>${task.name}</strong>
+        <p class="space">${task.description}</p>
+        <p class="space">Duration: ${hours}h ${minutes}m ${seconds}s</p>
+        <div class="tasks" style="display: block; margin-bottom: 10px">
+            <button class="styled-btn" onclick="showIndividualTotal(${index})">Total</button>
+        </div>
+        <p id="total-display-${index}" style="font-weight: bold; color: #333;"></p>
+      `;
+      taskContainer.appendChild(taskEl);
+    });
+  }
+}
+
 

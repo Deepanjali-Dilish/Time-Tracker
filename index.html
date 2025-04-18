@@ -9,7 +9,7 @@
 <body>
 
   <div class="top-bar">
-    <h1 class="title">Time Tracker</h1>
+    <h1 class="title">TRACKTIME</h1>
     <button id="login-btn" onclick="toggleLoginForm()">Login</button>
   </div>
 
@@ -21,17 +21,25 @@
 
   <div id="dashboard-section">
     <aside class="sidebar">
-      <h2>TRACK</h2>
+      <h2 class="sub-title">TRACK</h2>
       <ul>
         <li onclick="showDashboard()">Dashboard</li>
         <li id="add-task-nav" onclick="showAddTask()">Add Task</li>
-        <li onclick="showTasks()">Tasks</li>
+        <li style="display: flex; align-items: center; justify-content: space-between;">
+          <span onclick="showTasks()" style="flex: 1; cursor: pointer;">Tasks</span>
+          <span id="arrow" class="toggle-arrow" onclick="toggleSubmenu()" style="cursor: pointer;">&#9662;</span>
+        </li>
+        <li id="daily-tasks" onclick ="showDailyTasks()"="display: none;">Daily Tasks</li>
+       
+        
+          
+        
       </ul>
     </aside>
 
     <main class="main-content">
       <div id="add-task-section" style="display: none;">
-        <h3>Add Task</h3>
+        <h3 class="title-add">Add Task</h3>
         <input type="text" id="task-name" placeholder="Task Name" />
         <textarea id="task-description" placeholder="Task Description"></textarea>
         <button class="styled-btn" onclick="addTask()">Add Task</button>
@@ -53,6 +61,15 @@
       </div>
     </main>
   </div>
+
+  <footer class="footer">
+      <div class="footer-left"> 
+        © TrackTime 2025
+      </div>
+      <div class="footer-right">
+          <span>🌐 English</span>
+      </div>
+  </footer>
 
   <script src="script.js"></script>
 </body>
