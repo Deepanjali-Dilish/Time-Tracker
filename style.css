@@ -41,8 +41,8 @@ body{
 
 .login-popup{
   position: fixed;
-  top: 66%;
-  left: 50%;
+  top: 30%;
+  left: 53%;
   transform: translate(-50%, -50%);
   padding: 20px;
   max-width: 300px;
@@ -264,24 +264,150 @@ button.styled-btn{
   margin-top: 10px;
 }
 
-@media (min-width: 768px) {
+/* @media (min-width: 768px) {
     #dashboard-section {
       flex-direction: column;
 }
 .toggle-arrow{
   display: none;
 }
-/* .sidebar {
-      width: 100%;
-      display: flex;
-      justify-content: space-around;
-    }
-} */
-  
+
 .sidebar {
     width: 220px;
     background: #1b95ec;
     color: white;
     padding: 20px;
+    height: 100%;
+  }
+} */
+
+@media (min-width: 768px) {
+  #dashboard-section {
+    flex-direction: row; 
+  }
+
+  .sidebar {
+    width: 220px;
+    background: #1b95ec;
+    color: white;
+    padding: 20px;
+    height: 100%; 
+  }
+
+  .main-content {
+    flex: 1; 
+    padding: 70px;
+    overflow-y: auto;
+  }
+
+  .toggle-arrow {
+    display: none; 
+  }
+
+  #daily-tasks {
+    display: block; 
+    color: white;
+    font-size: 16px;
+  }
+  
+  .task{
+    margin-bottom: 20px;
+  }
+
+  .summary-box{
+    margin-bottom: 20px;
+  }
+
+  .title-add{
+    margin-bottom: 22px;
+  }
+
+  #add-task-section input[type="text"],
+  #add-task-section textarea{
+    margin-bottom: 35px;
+  }
+
+  .top-bar{
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
+
+@media screen and (min-width: 1330px){
+  .top-bar{
+    padding: 20px 15px;
+  }
+
+  .title{
+    font-size: 28px;
+  }
+
+  .sub-title{
+    font-size: 22px;
+  }
+
+  .sidebar li{
+    margin: 20px 0;
+  }
+
+  .sidebar{
+    width: 220px;
+    background: #1b95ec;
+    color: white;
+    padding: 20px;
+    height: 100%;
+  }
+  
+  .top-bar button{
+    font-size: 16px;
+    padding: 13px 22px;
+  }
+
+  .task{
+    padding-top: 30px;
+    padding-bottom: 30px;
+    font-size: 18px;
+  }
+
+  .summary-box{
+    padding-top: 40px;
+    padding-bottom: 40px;
+  }
+
+  #total-time{
+    font-size: 18px;
+  }
+
+  .title-recent{
+    font-size: 18px;
+  }
+
+  #recent-tasks li{
+    margin-top: 7px;
+    margin-bottom: 7px;
+    padding-top: 7px;
+    padding-bottom: 7px;
+  }
+
+  .side-title li{
+    font-size: 19px;
+  }
+
+  #daily-tasks{
+    font-size: 19px;
+  }
+
+  .footer{
+    padding-top: 19px;
+    padding-bottom: 19px;
+  }
+
+  .login-popup{
+    top: 28%;
+    left: 89%;
+  }
+
+  .task-space{
+    font-size: 20px;
   }
 }

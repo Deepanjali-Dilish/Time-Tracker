@@ -22,18 +22,14 @@
   <div id="dashboard-section">
     <aside class="sidebar">
       <h2 class="sub-title">TRACK</h2>
-      <ul>
+      <ul class="side-title">
         <li onclick="showDashboard()">Dashboard</li>
         <li id="add-task-nav" onclick="showAddTask()">Add Task</li>
         <li style="display: flex; align-items: center; justify-content: space-between;">
           <span onclick="showTasks()" style="flex: 1; cursor: pointer;">Tasks</span>
           <span id="arrow" class="toggle-arrow" onclick="toggleSubmenu()" style="cursor: pointer;">&#9662;</span>
         </li>
-        <li id="daily-tasks" onclick ="showDailyTasks()"="display: none;">Daily Tasks</li>
-       
-        
-          
-        
+        <li id="daily-tasks" onclick ="showDailyTasks()">Daily Tasks</li>
       </ul>
     </aside>
 
@@ -54,7 +50,7 @@
       <div id="summary-section">
         <div id="total-time" class="summary-box"></div>
         <div id="recent-tasks" class="summary-box">
-          <h3>Recent Tasks</h3>
+          <h3 class="title-recent" id="recent">Recent Tasks</h3>
           <ul id="recent-tasks-list"></ul>
         </div>
 

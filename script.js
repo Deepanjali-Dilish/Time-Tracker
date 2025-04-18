@@ -233,7 +233,7 @@ function loadTasks() {
     taskEl.className = "task";
     taskEl.innerHTML = `
       <strong>${task.name}</strong>
-      <p>Duration: ${hours}h ${minutes}m ${seconds}s</p>
+      <p class="space">Duration: ${hours}h ${minutes}m ${seconds}s</p>
     `
     taskContainer.appendChild(taskEl);
   
@@ -241,7 +241,7 @@ function loadTasks() {
 
     // tasks view
     if (tasks.length === 0){
-      taskContainer.innerHTML = '<p>No tasks available. Add a new task.</p>'
+      taskContainer.innerHTML = '<p class="task-space">No tasks available. Add a new task.</p>'
     }else{
       tasks.forEach((task, index) => {
         let hours = Math.floor(task.time / 3600);
@@ -293,10 +293,9 @@ function toggleSubmenu() {
   const isVisible = dailyTasks.style.display === "block";
 
   dailyTasks.style.display = isVisible ? "none" : "block";
-  
-
   arrow.innerHTML = isVisible ? "&#9662;" : "&#9650;";
 }
+
 
 function showDailyTasks() {
   viewMode = "tasks";
@@ -305,16 +304,16 @@ function showDailyTasks() {
   document.getElementById("summary-section").style.display = "none";
 
   const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-  const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+  const today = new Date().toISOString().split("T")[0]; 
 
   const taskContainer = document.getElementById("tasks");
   taskContainer.innerHTML = '';
 
-  // Ensure we're checking the created date correctly
+  
   const dailyTasks = tasks.filter(task => task.created && task.created === today);
 
   if (dailyTasks.length === 0) {
-    taskContainer.innerHTML = "<p>No daily tasks for today.</p>";
+    taskContainer.innerHTML = '<p class="task-space">No daily tasks for today.</p>';
   } else {
     dailyTasks.forEach((task, index) => {
       let hours = Math.floor(task.time / 3600);
