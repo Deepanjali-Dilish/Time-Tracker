@@ -178,23 +178,6 @@ function loadTasks() {
   const taskContainer = document.getElementById("tasks")
   taskContainer.innerHTML = '';
 
-  // total time today
-
-  let totalSeconds = tasks.reduce((sum, task) => sum + task.time, 0);
-  let hrs = Math.floor(totalSeconds / 3600);
-  let mins = Math.floor((totalSeconds % 3600) / 60);
-  let secs = totalSeconds % 60
-  document.getElementById("total-time").innerText = `Total Time Tracked Today: ${hrs}h ${mins}m ${secs}s`;
-
-  // recent task
-  const recentList = document.getElementById("recent-tasks-list");
-  recentList.innerHTML = '';
-  let recentTasks = tasks.slice(-3).reverse();
-  recentTasks.forEach(task => {
-    const item = document.createElement("li");
-    item.textContent = task.name
-    recentList.appendChild(item);
-  });
 
   if (viewMode === "full") {
 
@@ -224,6 +207,26 @@ function loadTasks() {
 
     // dashboard view
 
+    // total time today
+
+    // total time today
+
+    let totalSeconds = tasks.reduce((sum, task) => sum + task.time, 0);
+    let hrs = Math.floor(totalSeconds / 3600);
+    let mins = Math.floor((totalSeconds % 3600) / 60);
+    let secs = totalSeconds % 60
+    document.getElementById("total-time").innerText = `Total Time Tracked Today: ${hrs}h ${mins}m ${secs}s`;
+
+    // recent task
+    const recentList = document.getElementById("recent-tasks-list");
+    recentList.innerHTML = '';
+    let recentTasks = tasks.slice(-3).reverse();
+    recentTasks.forEach(task => {
+      const item = document.createElement("li");
+      item.textContent = task.name
+      recentList.appendChild(item);
+    });
+
     const task = tasks[currentTaskIndex];
     let hours = Math.floor(task.time / 3600);
     let minutes = Math.floor((task.time % 3600)/ 60);
@@ -237,6 +240,30 @@ function loadTasks() {
     `
     taskContainer.appendChild(taskEl);
   
+  }else if(viewMode === "user"){
+    const userSection = document.getElementById("tasks");
+    userSection.innerHTML = '';
+
+    if (tasks.length === 0) {
+      userSection.innerHTML = '<p>No user tasks available.</p>';
+      return;
+    }
+
+    tasks.forEach(task => {
+      const date = new Date(task.created);
+      const taskEl = document.createElement("div");
+      taskEl.className = "task";
+      taskEl.innerHTML = `
+        <strong>${task.name}</strong>
+        <p>${task.description}</p>
+        <p>Duration: ${Math.floor(task.time / 3600)}h ${Math.floor((task.time % 3600) / 60)}m ${task.time % 60}s</p>
+        <p>Date: ${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}</p>
+        <p>Time: ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}</p>
+      `;
+      userSection.appendChild(taskEl);
+    });
+  
+
   }else if (viewMode === "tasks"){
 
     // tasks view
@@ -268,6 +295,57 @@ function loadTasks() {
   }
 }
 
+function toggleSubmenu() {
+  const dailyTasks = document.getElementById("daily-tasks");
+  const arrow = document.getElementById("arrow");
+
+  const isVisible = dailyTasks.style.display === "block";
+
+  dailyTasks.style.display = isVisible ? "none" : "block";
+  arrow.innerHTML = isVisible ? "&#9662;" : "&#9650;";
+}
+
+function showDailyTasks() {
+  viewMode = "tasks";
+  document.getElementById("add-task-section").style.display = "none";
+  document.getElementById("tasks-section").style.display = "block";
+  document.getElementById("summary-section").style.display = "none";
+
+  const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+  const today = new Date().toISOString().split("T")[0]; 
+
+  const taskContainer = document.getElementById("tasks");
+  taskContainer.innerHTML = '';
+
+  const dailyTasks = tasks
+    .map((task, i) => ({ ...task, originalIndex: i }))
+    .filter(task => task.created === today);
+
+  if (dailyTasks.length === 0) {
+    taskContainer.innerHTML = '<p class="task-space">No daily tasks for today.</p>';
+  } else {
+    dailyTasks.forEach((task) => {
+      let hours = Math.floor(task.time / 3600);
+      let minutes = Math.floor((task.time % 3600) / 60);
+      let seconds = task.time % 60;
+
+      const taskEl = document.createElement("div");
+      taskEl.className = "task";
+      taskEl.innerHTML = `
+        <strong>${task.name}</strong>
+        <p class="space">${task.description}</p>
+        <p class="space">Duration: ${hours}h ${minutes}m ${seconds}s</p>
+        <div class="tasks" style="display: block; margin-bottom: 10px">
+            <button class="styled-btn" onclick="showIndividualTotal(${task.originalIndex})">Total</button>
+        </div>
+        <p id="total-display-${task.originalIndex}" style="font-weight: bold; color: #333;"></p>
+      `;
+      taskContainer.appendChild(taskEl);
+    });
+  }
+}
+
+
 window.onload = function () {
   const user = localStorage.getItem("user");
 
@@ -285,55 +363,7 @@ window.onload = function () {
   loadTasks();
 }
 
-
-function toggleSubmenu() {
-  const dailyTasks = document.getElementById("daily-tasks");
-  const arrow = document.getElementById("arrow");
-
-  const isVisible = dailyTasks.style.display === "block";
-
-  dailyTasks.style.display = isVisible ? "none" : "block";
-  arrow.innerHTML = isVisible ? "&#9662;" : "&#9650;";
-}
-
-
-function showDailyTasks() {
-  viewMode = "tasks";
-  document.getElementById("add-task-section").style.display = "none";
-  document.getElementById("tasks-section").style.display = "block";
-  document.getElementById("summary-section").style.display = "none";
-
-  const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-  const today = new Date().toISOString().split("T")[0]; 
-
-  const taskContainer = document.getElementById("tasks");
-  taskContainer.innerHTML = '';
-
-  
-  const dailyTasks = tasks.filter(task => task.created && task.created === today);
-
-  if (dailyTasks.length === 0) {
-    taskContainer.innerHTML = '<p class="task-space">No daily tasks for today.</p>';
-  } else {
-    dailyTasks.forEach((task, index) => {
-      let hours = Math.floor(task.time / 3600);
-      let minutes = Math.floor((task.time % 3600) / 60);
-      let seconds = task.time % 60;
-
-      const taskEl = document.createElement("div");
-      taskEl.className = "task";
-      taskEl.innerHTML = `
-        <strong>${task.name}</strong>
-        <p class="space">${task.description}</p>
-        <p class="space">Duration: ${hours}h ${minutes}m ${seconds}s</p>
-        <div class="tasks" style="display: block; margin-bottom: 10px">
-            <button class="styled-btn" onclick="showIndividualTotal(${index})">Total</button>
-        </div>
-        <p id="total-display-${index}" style="font-weight: bold; color: #333;"></p>
-      `;
-      taskContainer.appendChild(taskEl);
-    });
-  }
-}
-
-
+document.getElementById("userTasks").addEventListener("click", () => {
+  viewMode = "user";
+  loadTasks();
+});
