@@ -30,7 +30,7 @@
           <span id="arrow" class="toggle-arrow" onclick="toggleSubmenu()" style="cursor: pointer;">&#9662;</span>
         </li>
         <li id="daily-tasks" onclick ="showDailyTasks()">Daily Tasks</li>
-        <li id="userTasks">user</li>
+        <li id="userTasks" onclick="showUser()">User</li>
       </ul>
     </aside>
 
@@ -58,10 +58,11 @@
       </div>
 
       <div id="user-tasks-section" style="display: none;">
-          <h3>User's Tasks</h3>
+        <h3>User's Tasks</h3>
 
         <div id="user-tasks-list"></div>
       </div>
+     
     </main>
   </div>
 
