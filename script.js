@@ -879,31 +879,6 @@ function addTask() {
   loadTasks();
 }
 
-// function startTaskTimer(index) {
-//   if (timerInterval) clearInterval(timerInterval);
-
-//   currentTaskIndex = index;
-//   startTime = new Date();
-
-  
-// }
-
-function startTaskTimer(index) {
-  if (timerInterval) clearInterval(timerInterval);
-
-  currentTaskIndex = index;
-  startTime = new Date();
-
-  const displayEl = document.getElementById(`timer-display-${index}`);
-  displayEl.innerText = '00:00:00';
-
-  timerInterval = setInterval(() => {
-    const now = new Date();
-    const seconds = Math.floor((now - startTime) / 1000);
-    displayEl.innerText = formatTime(seconds);
-  }, 1000);
-}
-
 
 // function stopTaskTimer() {
 //   if (timerInterval) clearInterval(timerInterval);
@@ -916,11 +891,76 @@ function startTaskTimer(index) {
 //   task.endTime = new Date().toISOString();
 //   localStorage.setItem("tasks", JSON.stringify(tasks));
 
+//   const displayEl = document.getElementById(`timer-display-${currentTaskIndex}`);
+//   if (displayEl) displayEl.innerText = formatTime(
+//     Math.floor((new Date(task.endTime) - new Date(task.startTime)) / 1000)
+//   );
+
 //   currentTaskIndex = null;
 //   startTime = null;
 //   loadTasks();
 // }
 
+// function startTaskTimer(index) {
+//   if (timerInterval) clearInterval(timerInterval);
+
+//   let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+//   const task = tasks[index];
+
+//   currentTaskIndex = index;
+//   startTime = new Date();
+
+//   task.startTime = startTime.toISOString(); // Overwrite with actual start time
+//   task.endTime = null; // Clear any previous endTime
+
+//   localStorage.setItem("tasks", JSON.stringify(tasks));
+
+//   const displayEl = document.getElementById(`timer-display-${index}`);
+//   displayEl.innerText = '00:00:00';
+
+//   timerInterval = setInterval(() => {
+//     const now = new Date();
+//     const seconds = Math.floor((now - startTime) / 1000);
+//     displayEl.innerText = formatTime(seconds);
+//   }, 1000);
+// }
+
+function startTaskTimer(index) {
+  if (timerInterval) clearInterval(timerInterval);
+
+  let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+  const task = tasks[index];
+
+  currentTaskIndex = index;
+
+  // If the task was previously stopped, resume from the last stop time
+  const previousStopTime = task.endTime ? new Date(task.endTime) : null;
+  startTime = previousStopTime ? new Date() : new Date(); // Use current time if no previous stop time
+
+  if (previousStopTime) {
+    // Calculate the previous duration and subtract it from the current timer
+    const previousDuration = calculateDuration(task);
+    task.startTime = new Date(task.startTime).toISOString(); // Keep the original start time
+    task.endTime = null; // Reset the end time
+
+    // Add the previous duration to the new start time
+    startTime.setSeconds(startTime.getSeconds() - previousDuration);
+  } else {
+    task.startTime = startTime.toISOString(); // Set the new start time if it's a fresh start
+  }
+
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+
+  const displayEl = document.getElementById(`timer-display-${index}`);
+  displayEl.innerText = formatTime(calculateDuration(task));
+
+  timerInterval = setInterval(() => {
+    const now = new Date();
+    const seconds = Math.floor((now - startTime) / 1000);
+    displayEl.innerText = formatTime(seconds);
+  }, 1000);
+}
+ 
 function stopTaskTimer() {
   if (timerInterval) clearInterval(timerInterval);
   if (currentTaskIndex === null) return;
@@ -941,7 +981,6 @@ function stopTaskTimer() {
   startTime = null;
   loadTasks();
 }
-
 
 
 function editCurrentTask(index) {
@@ -1019,7 +1058,10 @@ function loadTasks() {
           <p class="space">${task.description}</p>
           <p><strong>Time:</strong> <span id="timer-display-${index}">${formatTime(duration)}</span></p>
           <div class="tasks" style="margin-top: 10px">
-            <button class="styled-btn" onclick="startTaskTimer(${index})">Start</button>
+           <button class="styled-btn" onclick="startTaskTimer(${index})">
+            ${task.endTime && task.startTime ? "Resume" : "Start"}    
+           </button>
+
             <button class="styled-btn" onclick="stopTaskTimer()">Stop</button>
             <button class="styled-btn" onclick="editCurrentTask(${index})">Edit</button>
             <button class="styled-btn" onclick="deleteTask(${index})">Delete Task</button>
@@ -1031,12 +1073,22 @@ function loadTasks() {
   }
 }
 
+// function formatTime(seconds) {
+//   const hrs = String(Math.floor(seconds / 3600)).padStart(2, '0');
+//   const mins = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+//   const secs = String(seconds % 60).padStart(2, '0');
+//   return `${hrs}:${mins}:${secs}`;
+// }
+
 function formatTime(seconds) {
-  const hrs = String(Math.floor(seconds / 3600)).padStart(2, '0');
-  const mins = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
-  const secs = String(seconds % 60).padStart(2, '0');
-  return `${hrs}:${mins}:${secs}`;
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const remainingSeconds = seconds % 60;
+
+  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
 }
+
+
 
 function toggleSubmenu() {
   const dailyTasks = document.getElementById("daily-tasks");
@@ -1144,4 +1196,3 @@ window.onload = function () {
   loadTasks();
 }
 
-// when i click the start button tne timer counts 1,2,3, like know not coming why i need to see that
