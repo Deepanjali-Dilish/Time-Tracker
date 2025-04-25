@@ -781,7 +781,7 @@
 
 
 
- let currentTaskIndex = null;
+let currentTaskIndex = null;
 let timerInterval;
 let startTime = null;
 let viewMode = showDashboard;
@@ -879,12 +879,47 @@ function addTask() {
   loadTasks();
 }
 
+// function startTaskTimer(index) {
+//   if (timerInterval) clearInterval(timerInterval);
+
+//   currentTaskIndex = index;
+//   startTime = new Date();
+
+  
+// }
+
 function startTaskTimer(index) {
   if (timerInterval) clearInterval(timerInterval);
 
   currentTaskIndex = index;
   startTime = new Date();
+
+  const displayEl = document.getElementById(`timer-display-${index}`);
+  displayEl.innerText = '00:00:00';
+
+  timerInterval = setInterval(() => {
+    const now = new Date();
+    const seconds = Math.floor((now - startTime) / 1000);
+    displayEl.innerText = formatTime(seconds);
+  }, 1000);
 }
+
+
+// function stopTaskTimer() {
+//   if (timerInterval) clearInterval(timerInterval);
+//   if (currentTaskIndex === null) return;
+
+//   const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+//   const task = tasks[currentTaskIndex];
+//   if (!task) return;
+
+//   task.endTime = new Date().toISOString();
+//   localStorage.setItem("tasks", JSON.stringify(tasks));
+
+//   currentTaskIndex = null;
+//   startTime = null;
+//   loadTasks();
+// }
 
 function stopTaskTimer() {
   if (timerInterval) clearInterval(timerInterval);
@@ -897,10 +932,17 @@ function stopTaskTimer() {
   task.endTime = new Date().toISOString();
   localStorage.setItem("tasks", JSON.stringify(tasks));
 
+  const displayEl = document.getElementById(`timer-display-${currentTaskIndex}`);
+  if (displayEl) displayEl.innerText = formatTime(
+    Math.floor((new Date(task.endTime) - new Date(task.startTime)) / 1000)
+  );
+
   currentTaskIndex = null;
   startTime = null;
   loadTasks();
 }
+
+
 
 function editCurrentTask(index) {
   const tasks = JSON.parse(localStorage.getItem("tasks"));
@@ -975,7 +1017,7 @@ function loadTasks() {
         taskEl.innerHTML = `
           <strong>${task.name}</strong>
           <p class="space">${task.description}</p>
-          <p><strong>Time:</strong> ${formatTime(duration)}</p>
+          <p><strong>Time:</strong> <span id="timer-display-${index}">${formatTime(duration)}</span></p>
           <div class="tasks" style="margin-top: 10px">
             <button class="styled-btn" onclick="startTaskTimer(${index})">Start</button>
             <button class="styled-btn" onclick="stopTaskTimer()">Stop</button>
@@ -1101,3 +1143,5 @@ window.onload = function () {
   viewMode = "dashboard";
   loadTasks();
 }
+
+// when i click the start button tne timer counts 1,2,3, like know not coming why i need to see that
