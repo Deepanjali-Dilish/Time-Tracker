@@ -1028,20 +1028,13 @@ function loadTasks() {
   }
 }
 
-// function formatTime(seconds) {
-//   const hrs = String(Math.floor(seconds / 3600)).padStart(2, '0');
-//   const mins = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
-//   const secs = String(seconds % 60).padStart(2, '0');
-//   return `${hrs}:${mins}:${secs}`;
-// }
-
 function formatTime(seconds) {
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  const remainingSeconds = seconds % 60;
-
-  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+  const hrs = String(Math.floor(seconds / 3600)).padStart(2, '0');
+  const mins = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+  const secs = String(seconds % 60).padStart(2, '0');
+  return `${hrs}:${mins}:${secs}`;
 }
+
 
 
 
