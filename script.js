@@ -880,51 +880,6 @@ function addTask() {
 }
 
 
-// function stopTaskTimer() {
-//   if (timerInterval) clearInterval(timerInterval);
-//   if (currentTaskIndex === null) return;
-
-//   const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-//   const task = tasks[currentTaskIndex];
-//   if (!task) return;
-
-//   task.endTime = new Date().toISOString();
-//   localStorage.setItem("tasks", JSON.stringify(tasks));
-
-//   const displayEl = document.getElementById(`timer-display-${currentTaskIndex}`);
-//   if (displayEl) displayEl.innerText = formatTime(
-//     Math.floor((new Date(task.endTime) - new Date(task.startTime)) / 1000)
-//   );
-
-//   currentTaskIndex = null;
-//   startTime = null;
-//   loadTasks();
-// }
-
-// function startTaskTimer(index) {
-//   if (timerInterval) clearInterval(timerInterval);
-
-//   let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-//   const task = tasks[index];
-
-//   currentTaskIndex = index;
-//   startTime = new Date();
-
-//   task.startTime = startTime.toISOString(); // Overwrite with actual start time
-//   task.endTime = null; // Clear any previous endTime
-
-//   localStorage.setItem("tasks", JSON.stringify(tasks));
-
-//   const displayEl = document.getElementById(`timer-display-${index}`);
-//   displayEl.innerText = '00:00:00';
-
-//   timerInterval = setInterval(() => {
-//     const now = new Date();
-//     const seconds = Math.floor((now - startTime) / 1000);
-//     displayEl.innerText = formatTime(seconds);
-//   }, 1000);
-// }
-
 function startTaskTimer(index) {
   if (timerInterval) clearInterval(timerInterval);
 
