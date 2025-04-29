@@ -1249,57 +1249,57 @@ function addTask() {
   loadTasks();
 }
 
-function startTaskTimer(index) {
-  if (timerInterval) clearInterval(timerInterval);
+// function startTaskTimer(index) {
+//   if (timerInterval) clearInterval(timerInterval);
 
-  let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-  const task = tasks[index];
-  const startButton = document.getElementById(`start-btn-${index}`);
+//   let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+//   const task = tasks[index];
+//   const startButton = document.getElementById(`start-btn-${index}`);
 
-  if (!task.startTime && !task.endTime) {
-    // First time starting
-    task.startTime = new Date().toISOString();
-    startButton.innerText = "Start"; // Show Start
-  } else if (!task.startTime && task.endTime) {
-    // Resuming task
-    task.startTime = new Date().toISOString();
-    startButton.innerText = "Resume"; // Keep Resume
-  }
+//   if (!task.startTime && !task.endTime) {
+//     // First time starting
+//     task.startTime = new Date().toISOString();
+//     startButton.innerText = "Start"; // Show Start
+//   } else if (!task.startTime && task.endTime) {
+//     // Resuming task
+//     task.startTime = new Date().toISOString();
+//     startButton.innerText = "Resume"; // Keep Resume
+//   }
 
-  currentTaskIndex = index;
-  localStorage.setItem("tasks", JSON.stringify(tasks));
-  updateTimerDisplay(index);
+//   currentTaskIndex = index;
+//   localStorage.setItem("tasks", JSON.stringify(tasks));
+//   updateTimerDisplay(index);
 
-  timerInterval = setInterval(() => {
-    updateTimerDisplay(index);
-  }, 1000);
-}
+//   timerInterval = setInterval(() => {
+//     updateTimerDisplay(index);
+//   }, 1000);
+// }
 
-// Stop task (but don't change Resume text!)
-function stopTaskTimer() {
-  if (timerInterval) clearInterval(timerInterval);
-  if (currentTaskIndex === null) return;
+// // Stop task (but don't change Resume text!)
+// function stopTaskTimer() {
+//   if (timerInterval) clearInterval(timerInterval);
+//   if (currentTaskIndex === null) return;
 
-  let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-  const task = tasks[currentTaskIndex];
-  const startButton = document.getElementById(`start-btn-${currentTaskIndex}`);
+//   let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+//   const task = tasks[currentTaskIndex];
+//   const startButton = document.getElementById(`start-btn-${currentTaskIndex}`);
 
-  const now = new Date();
-  task.endTime = now.toISOString();
+//   const now = new Date();
+//   task.endTime = now.toISOString();
 
-  const sessionSeconds = (new Date(task.endTime) - new Date(task.startTime)) / 1000;
-  task.totalSeconds += Math.floor(sessionSeconds);
+//   const sessionSeconds = (new Date(task.endTime) - new Date(task.startTime)) / 1000;
+//   task.totalSeconds += Math.floor(sessionSeconds);
 
-  task.startTime = null;
+//   task.startTime = null;
 
   
 
-  localStorage.setItem("tasks", JSON.stringify(tasks));
-  currentTaskIndex = null;
-  startTime = null;
+//   localStorage.setItem("tasks", JSON.stringify(tasks));
+//   currentTaskIndex = null;
+//   startTime = null;
 
-  loadTasks();
-}
+//   loadTasks();
+// }
 
 function editCurrentTask(index) {
   let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
@@ -1321,9 +1321,9 @@ function deleteTask(index) {
   loadTasks();
 }
 
-function calculateDuration(task) {
-  return task.totalSeconds || 0;
-}
+// function calculateDuration(task) {
+//   return task.totalSeconds || 0;
+// }
 
 function showIndividualTotal(index) {
   const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
@@ -1402,19 +1402,22 @@ function changeStartToResume(index) {
 }
 
 
-// function formatTime(totalSeconds) {
-//   const hrs = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
-//   const mins = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
-//   const secs = String(totalSeconds % 60).padStart(2, '0');
-//   return `${hrs}:${mins}:${secs}`;
-// }
 
-function formatTime(totalSeconds) {
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-  return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+function formatTime(seconds) {
+  const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
+  const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+  const s = String(seconds % 60).padStart(2, '0');
+  return `${h}:${m}:${s}`;
 }
+
+
+
+// function formatTime(totalSeconds) {
+//   const hours = Math.floor(totalSeconds / 3600);
+//   const minutes = Math.floor((totalSeconds % 3600) / 60);
+//   const seconds = totalSeconds % 60;
+//   return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+// }
 
 function updateTimerDisplay(index) {
   const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
@@ -1476,42 +1479,42 @@ function showDailyTasks() {
   }
 }
 
-function showUser() {
-  viewMode = "user";
-  displaySections("user");
+// function showUser() {
+//   viewMode = "user";
+//   displaySections("user");
 
-  const user = JSON.parse(localStorage.getItem("user"));
-  const userTaskList = document.getElementById("user-tasks-list");
-  userTaskList.innerHTML = '';
+//   const user = JSON.parse(localStorage.getItem("user"));
+//   const userTaskList = document.getElementById("user-tasks-list");
+//   userTaskList.innerHTML = '';
 
-  if (user && user.email) {
-    const userEl = document.createElement("div");
-    userEl.className = "task";
-    userEl.innerHTML = `<strong>User</strong><p>Email: ${user.email}</p>`;
-    userTaskList.appendChild(userEl);
+//   if (user && user.email) {
+//     const userEl = document.createElement("div");
+//     userEl.className = "task";
+//     userEl.innerHTML = `<strong>User</strong><p>Email: ${user.email}</p>`;
+//     userTaskList.appendChild(userEl);
 
-    const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-    const userTasks = tasks.filter(task => task.email === user.email);
+//     const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+//     const userTasks = tasks.filter(task => task.email === user.email);
 
-    if (userTasks.length > 0) {
-      userTasks.forEach(task => {
-        const startDate = new Date(task.startTime || Date.now());
-        const endDate = task.endTime ? new Date(task.endTime) : null;
-        const taskEl = document.createElement("div");
-        taskEl.className = "task";
-        taskEl.innerHTML = `
-          <hr>
-          <strong>Task: ${task.name}</strong>
-          <p>Description: ${task.description || "No description"}</p>
-          <p>Start: ${startDate.toLocaleString()}</p>
-          <p>End: ${endDate ? endDate.toLocaleString() : "Running..."}</p>
-          <p><strong>Total Time:</strong> ${formatTime(calculateDuration(task))}</p>
-        `;
-        userTaskList.appendChild(taskEl);
-      });
-    }
-  }
-}
+//     if (userTasks.length > 0) {
+//       userTasks.forEach(task => {
+//         const startDate = new Date(task.startTime || Date.now());
+//         const endDate = task.endTime ? new Date(task.endTime) : null;
+//         const taskEl = document.createElement("div");
+//         taskEl.className = "task";
+//         taskEl.innerHTML = `
+//           <hr>
+//           <strong>Task: ${task.name}</strong>
+//           <p>Description: ${task.description || "No description"}</p>
+//           <p>Start: ${startDate.toLocaleString()}</p>
+//           <p>End: ${endDate ? endDate.toLocaleString() : "Running..."}</p>
+//           <p><strong>Total Time:</strong> ${formatTime(calculateDuration(task))}</p>
+//         `;
+//         userTaskList.appendChild(taskEl);
+//       });
+//     }
+//   }
+// }
 
 function onTaskClick(index) {
   let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
@@ -1542,21 +1545,143 @@ window.onload = function() {
   loadTasks();
 };
 
-// this is my code in this when i clik the start button that current time be take and when i clik the stop that current time be take and just substract that time to get the duration
-// and when i clik the resume button that current time should be take and when i click the stop button that time should be take and just substract that to times to get the duration
-// and just add that both duration to get the total duration 
-// inn the below is the example that like should be have the calculation and the that like should be show in the showUser the user details
+function startTaskTimer(index) {
+  if (timerInterval) clearInterval(timerInterval);
 
-// Start: 29/04/2025, 10:50:28
+  let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+  const task = tasks[index];
+  const startButton = document.getElementById(`start-btn-${index}`);
 
-// Stop: 29/04/2025, 10:50:31
+  if (!task.startTime && !task.endTime) {
+    // First time starting
+    task.startTime = new Date().toISOString();
+    task.sessions = [{ start: task.startTime, end: null }];
+    startButton.innerText = "Start"; // Show Start
+  } else if (!task.startTime && task.endTime) {
+    // Resuming task after stopping
+    task.startTime = new Date().toISOString();
+    task.sessions.push({ start: task.startTime, end: null });
+    startButton.innerText = "Resume"; // Keep Resume
+  }
 
-// Duration: 00:00:03
+  currentTaskIndex = index;
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+  updateTimerDisplay(index);
 
-// Resume 1
+  timerInterval = setInterval(() => {
+    updateTimerDisplay(index);
+  }, 1000);
+}
 
-// Resume Start: 29/04/2025, 10:50:53
+function stopTaskTimer() {
+  if (timerInterval) clearInterval(timerInterval);
+  if (currentTaskIndex === null) return;
 
-// Resume Stop: 29/04/2025, 10:50:55
+  let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+  const task = tasks[currentTaskIndex];
+  const startButton = document.getElementById(`start-btn-${currentTaskIndex}`);
 
-// Resume Duration: 00:00:02
+  const now = new Date();
+  const sessionDuration = (now - new Date(task.sessions[task.sessions.length - 1].start)) / 1000; // in seconds
+  task.sessions[task.sessions.length - 1].end = now.toISOString(); // Mark the end time of the current session
+
+  // Update total time by adding the current session's duration
+  task.totalSeconds = (task.totalSeconds || 0) + Math.floor(sessionDuration);
+
+  task.startTime = null;  // Reset start time after stopping the task
+
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+  currentTaskIndex = null;
+  startTime = null;
+
+  loadTasks();
+}
+
+function calculateDuration(task) {
+  // Return the total accumulated seconds for this task
+  return task.totalSeconds || 0;
+}
+
+function showUser() {
+  viewMode = "user";
+  displaySections("user");
+
+  const user = JSON.parse(localStorage.getItem("user"));
+  const userTaskList = document.getElementById("user-tasks-list");
+  userTaskList.innerHTML = '';
+
+  if (user && user.email) {
+    const userEl = document.createElement("div");
+    userEl.className = "task";
+    userEl.innerHTML = `<strong>User</strong><p>Email: ${user.email}</p>`;
+    userTaskList.appendChild(userEl);
+
+    const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    const userTasks = tasks.filter(task => task.email === user.email);
+
+    userTasks.forEach(task => {
+      const taskEl = document.createElement("div");
+      taskEl.className = "task";
+
+      const sessions = task.sessions || [];
+      let totalSeconds = 0;
+      let html = `
+        <hr>
+        <strong>Task:</strong> ${task.name}<br>
+        <strong>Description:</strong> ${task.description || "No description"}<br>
+      `;
+
+      if (sessions.length > 0) {
+        // Session 0 = main start/stop
+        const first = sessions[0];
+        const start = first.start ? new Date(first.start) : null;
+        const stop = first.end ? new Date(first.end) : null;
+        let mainDuration = 0;
+
+        if (start && stop) {
+          mainDuration = Math.floor((stop - start) / 1000);
+          totalSeconds += mainDuration;
+        }
+
+        html += `
+          <br><strong>Start:</strong> ${start ? start.toLocaleString() : "N/A"}
+          <br><strong>Stop:</strong> ${stop ? stop.toLocaleString() : "Running..."}
+          <br><strong>Duration:</strong> ${stop ? formatTime(mainDuration) : "Running..."}
+        `;
+
+        // Remaining sessions = Resume sessions
+        for (let i = 1; i < sessions.length; i++) {
+          const resume = sessions[i];
+          const resumeStart = resume.start ? new Date(resume.start) : null;
+          const resumeStop = resume.end ? new Date(resume.end) : null;
+          let resumeDuration = 0;
+
+          if (resumeStart && resumeStop) {
+            resumeDuration = Math.floor((resumeStop - resumeStart) / 1000);
+            totalSeconds += resumeDuration;
+          }
+
+          html += `
+            <br><br><strong>Resume ${i}</strong>
+            <br><strong>Resume Start:</strong> ${resumeStart ? resumeStart.toLocaleString() : "N/A"}
+            <br><strong>Resume Stop:</strong> ${resumeStop ? resumeStop.toLocaleString() : "Running..."}
+            <br><strong>Resume Duration:</strong> ${resumeStop ? formatTime(resumeDuration) : "Running..."}
+          `;
+        }
+      }
+
+      html += `<br><br><strong>Total Duration:</strong> ${formatTime(totalSeconds)}`;
+
+      taskEl.innerHTML = html;
+      userTaskList.appendChild(taskEl);
+    });
+  }
+}
+
+// Utility for time formatting
+function formatTime(seconds) {
+  const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
+  const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+  const s = String(seconds % 60).padStart(2, '0');
+  return `${h}:${m}:${s}`;
+}
