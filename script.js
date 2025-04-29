@@ -1249,57 +1249,7 @@ function addTask() {
   loadTasks();
 }
 
-// function startTaskTimer(index) {
-//   if (timerInterval) clearInterval(timerInterval);
 
-//   let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-//   const task = tasks[index];
-//   const startButton = document.getElementById(`start-btn-${index}`);
-
-//   if (!task.startTime && !task.endTime) {
-//     // First time starting
-//     task.startTime = new Date().toISOString();
-//     startButton.innerText = "Start"; // Show Start
-//   } else if (!task.startTime && task.endTime) {
-//     // Resuming task
-//     task.startTime = new Date().toISOString();
-//     startButton.innerText = "Resume"; // Keep Resume
-//   }
-
-//   currentTaskIndex = index;
-//   localStorage.setItem("tasks", JSON.stringify(tasks));
-//   updateTimerDisplay(index);
-
-//   timerInterval = setInterval(() => {
-//     updateTimerDisplay(index);
-//   }, 1000);
-// }
-
-// // Stop task (but don't change Resume text!)
-// function stopTaskTimer() {
-//   if (timerInterval) clearInterval(timerInterval);
-//   if (currentTaskIndex === null) return;
-
-//   let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-//   const task = tasks[currentTaskIndex];
-//   const startButton = document.getElementById(`start-btn-${currentTaskIndex}`);
-
-//   const now = new Date();
-//   task.endTime = now.toISOString();
-
-//   const sessionSeconds = (new Date(task.endTime) - new Date(task.startTime)) / 1000;
-//   task.totalSeconds += Math.floor(sessionSeconds);
-
-//   task.startTime = null;
-
-  
-
-//   localStorage.setItem("tasks", JSON.stringify(tasks));
-//   currentTaskIndex = null;
-//   startTime = null;
-
-//   loadTasks();
-// }
 
 function editCurrentTask(index) {
   let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
@@ -1321,9 +1271,7 @@ function deleteTask(index) {
   loadTasks();
 }
 
-// function calculateDuration(task) {
-//   return task.totalSeconds || 0;
-// }
+
 
 function showIndividualTotal(index) {
   const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
@@ -1412,12 +1360,12 @@ function formatTime(seconds) {
 
 
 
-// function formatTime(totalSeconds) {
-//   const hours = Math.floor(totalSeconds / 3600);
-//   const minutes = Math.floor((totalSeconds % 3600) / 60);
-//   const seconds = totalSeconds % 60;
-//   return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-// }
+function formatTime(totalSeconds) {
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+}
 
 function updateTimerDisplay(index) {
   const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
@@ -1479,42 +1427,6 @@ function showDailyTasks() {
   }
 }
 
-// function showUser() {
-//   viewMode = "user";
-//   displaySections("user");
-
-//   const user = JSON.parse(localStorage.getItem("user"));
-//   const userTaskList = document.getElementById("user-tasks-list");
-//   userTaskList.innerHTML = '';
-
-//   if (user && user.email) {
-//     const userEl = document.createElement("div");
-//     userEl.className = "task";
-//     userEl.innerHTML = `<strong>User</strong><p>Email: ${user.email}</p>`;
-//     userTaskList.appendChild(userEl);
-
-//     const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-//     const userTasks = tasks.filter(task => task.email === user.email);
-
-//     if (userTasks.length > 0) {
-//       userTasks.forEach(task => {
-//         const startDate = new Date(task.startTime || Date.now());
-//         const endDate = task.endTime ? new Date(task.endTime) : null;
-//         const taskEl = document.createElement("div");
-//         taskEl.className = "task";
-//         taskEl.innerHTML = `
-//           <hr>
-//           <strong>Task: ${task.name}</strong>
-//           <p>Description: ${task.description || "No description"}</p>
-//           <p>Start: ${startDate.toLocaleString()}</p>
-//           <p>End: ${endDate ? endDate.toLocaleString() : "Running..."}</p>
-//           <p><strong>Total Time:</strong> ${formatTime(calculateDuration(task))}</p>
-//         `;
-//         userTaskList.appendChild(taskEl);
-//       });
-//     }
-//   }
-// }
 
 function onTaskClick(index) {
   let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
@@ -1544,6 +1456,7 @@ window.onload = function() {
   showDashboard();
   loadTasks();
 };
+
 
 function startTaskTimer(index) {
   if (timerInterval) clearInterval(timerInterval);
@@ -1602,6 +1515,83 @@ function calculateDuration(task) {
   return task.totalSeconds || 0;
 }
 
+// function showUser() {
+//   viewMode = "user";
+//   displaySections("user");
+
+//   const user = JSON.parse(localStorage.getItem("user"));
+//   const userTaskList = document.getElementById("user-tasks-list");
+//   userTaskList.innerHTML = '';
+
+//   if (user && user.email) {
+//     const userEl = document.createElement("div");
+//     userEl.className = "task";
+//     userEl.innerHTML = `<strong>User</strong><p>Email: ${user.email}</p>`;
+//     userTaskList.appendChild(userEl);
+
+//     const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+//     const userTasks = tasks.filter(task => task.email === user.email);
+
+//     userTasks.forEach(task => {
+//       const taskEl = document.createElement("div");
+//       taskEl.className = "task";
+
+//       const sessions = task.sessions || [];
+//       let totalSeconds = 0;
+//       let html = `
+//         <hr>
+//         <strong>Task:</strong> ${task.name}<br>
+//         <strong>Description:</strong> ${task.description || "No description"}<br>
+//       `;
+
+//       if (sessions.length > 0) {
+//         // Session 0 = main start/stop
+//         const first = sessions[0];
+//         const start = first.start ? new Date(first.start) : null;
+//         const stop = first.end ? new Date(first.end) : null;
+//         let mainDuration = 0;
+
+//         if (start && stop) {
+//           mainDuration = Math.floor((stop - start) / 1000);
+//           totalSeconds += mainDuration;
+//         }
+
+//         html += `
+//           <br><strong>Start:</strong> ${start ? start.toLocaleString() : "N/A"}
+//           <br><strong>Stop:</strong> ${stop ? stop.toLocaleString() : "Running..."}
+//           <br><strong>Duration:</strong> ${stop ? formatTime(mainDuration) : "Running..."}
+//         `;
+
+//         // Remaining sessions = Resume sessions
+//         for (let i = 1; i < sessions.length; i++) {
+//           const resume = sessions[i];
+//           const resumeStart = resume.start ? new Date(resume.start) : null;
+//           const resumeStop = resume.end ? new Date(resume.end) : null;
+//           let resumeDuration = 0;
+
+//           if (resumeStart && resumeStop) {
+//             resumeDuration = Math.floor((resumeStop - resumeStart) / 1000);
+//             totalSeconds += resumeDuration;
+//           }
+
+//           html += `
+//             <br><br><strong>Resume ${i}</strong>
+//             <br><strong>Resume Start:</strong> ${resumeStart ? resumeStart.toLocaleString() : "N/A"}
+//             <br><strong>Resume Stop:</strong> ${resumeStop ? resumeStop.toLocaleString() : "Running..."}
+//             <br><strong>Resume Duration:</strong> ${resumeStop ? formatTime(resumeDuration) : "Running..."}
+//           `;
+//         }
+//       }
+
+//       html += `<br><br><strong>Total Duration:</strong> ${formatTime(totalSeconds)}`;
+
+//       taskEl.innerHTML = html;
+//       userTaskList.appendChild(taskEl);
+//     });
+//   }
+// }
+
+
 function showUser() {
   viewMode = "user";
   displaySections("user");
@@ -1632,16 +1622,20 @@ function showUser() {
       `;
 
       if (sessions.length > 0) {
+        // Function to calculate duration for sessions
+        const calculateDuration = (start, stop) => {
+          if (start && stop) {
+            return Math.floor((stop - start) / 1000);
+          }
+          return 0;
+        };
+
         // Session 0 = main start/stop
         const first = sessions[0];
         const start = first.start ? new Date(first.start) : null;
         const stop = first.end ? new Date(first.end) : null;
-        let mainDuration = 0;
-
-        if (start && stop) {
-          mainDuration = Math.floor((stop - start) / 1000);
-          totalSeconds += mainDuration;
-        }
+        let mainDuration = calculateDuration(start, stop);
+        totalSeconds += mainDuration;
 
         html += `
           <br><strong>Start:</strong> ${start ? start.toLocaleString() : "N/A"}
@@ -1650,24 +1644,19 @@ function showUser() {
         `;
 
         // Remaining sessions = Resume sessions
-        for (let i = 1; i < sessions.length; i++) {
-          const resume = sessions[i];
+        sessions.slice(1).forEach((resume, i) => {
           const resumeStart = resume.start ? new Date(resume.start) : null;
           const resumeStop = resume.end ? new Date(resume.end) : null;
-          let resumeDuration = 0;
-
-          if (resumeStart && resumeStop) {
-            resumeDuration = Math.floor((resumeStop - resumeStart) / 1000);
-            totalSeconds += resumeDuration;
-          }
+          let resumeDuration = calculateDuration(resumeStart, resumeStop);
+          totalSeconds += resumeDuration;
 
           html += `
-            <br><br><strong>Resume ${i}</strong>
+            <br><br><strong>Resume ${i + 1}</strong>
             <br><strong>Resume Start:</strong> ${resumeStart ? resumeStart.toLocaleString() : "N/A"}
             <br><strong>Resume Stop:</strong> ${resumeStop ? resumeStop.toLocaleString() : "Running..."}
             <br><strong>Resume Duration:</strong> ${resumeStop ? formatTime(resumeDuration) : "Running..."}
           `;
-        }
+        });
       }
 
       html += `<br><br><strong>Total Duration:</strong> ${formatTime(totalSeconds)}`;
@@ -1678,10 +1667,4 @@ function showUser() {
   }
 }
 
-// Utility for time formatting
-function formatTime(seconds) {
-  const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
-  const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
-  const s = String(seconds % 60).padStart(2, '0');
-  return `${h}:${m}:${s}`;
-}
+
