@@ -780,9 +780,6 @@
  // dose my code in that or make it as in that way  . and give full js updated code ok
 
 
-
-
-
 let currentTaskIndex = null;
 let timerInterval = null;
 let startTime = null;
@@ -920,6 +917,7 @@ function showIndividualTotal(index) {
   if (displayEl) displayEl.innerText = `Total Time: ${formatTime(seconds)}`;
 }
 
+
 function loadTasks() {
   const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
   const taskContainer = document.getElementById("tasks");
@@ -957,18 +955,44 @@ function loadTasks() {
         taskEl.className = "task";
         taskEl.style.cursor = "pointer";
 
+        let statusText = "";
+        let statusColor = "";
+        let borderColor = "";
+
+        if (task.completed) {
+          statusText = "Task completed ✅ ";
+          statusColor = "green";
+          borderColor = "green";
+        } else if (!task.startTime && task.endTime) {
+          statusText = "In progress";
+          statusColor = "red";
+          borderColor = "red";
+        } else {
+          statusText = "Pending";
+          statusColor = "#1b1fec";
+          borderColor = "#1b1fec";
+        }
+
+        taskEl.style.borderLeft = `5px solid ${borderColor}`;
         taskEl.innerHTML = `
+          <p class="task-status" style="font-weight: bold; color: ${statusColor}; margin-bottom: 5px;">
+            ${statusText}
+          </p>
           <strong>${task.name}</strong>
           <p class="space">${task.description}</p>
           <p><strong>Time:</strong> <span id="timer-display-${index}">${formatTime(calculateDuration(task))}</span></p>
           <div class="tasks" style="margin-top: 10px">
-             <button id="start-btn-${index}" class="styled-btn" onclick="event.stopPropagation(); startTaskTimer(${index})">
-              ${task.startTime ? "Resume" : "Start"}
-            </button>
-
-            <button id="stop-btn-${index}" class="styled-btn" onclick="event.stopPropagation(); stopTaskTimer(${index})">Stop</button>
-            <button class="styled-btn" onclick="event.stopPropagation(); editCurrentTask(${index})">Edit</button>
+            ${task.completed ? '' : `
+              <button id="start-btn-${index}" class="styled-btn" onclick="event.stopPropagation(); startTaskTimer(${index})">
+                ${task.startTime ? "Resume" : "Start"}
+              </button>
+              <button id="stop-btn-${index}" class="styled-btn" onclick="event.stopPropagation(); stopTaskTimer(${index})">Stop</button>
+              <button class="styled-btn" onclick="event.stopPropagation(); editCurrentTask(${index})">Edit</button>
+            `}
             <button class="styled-btn" onclick="event.stopPropagation(); deleteTask(${index})">Delete</button>
+            <button class="styled-btn" onclick="event.stopPropagation(); taskCompleted(${index})">
+              ${task.completed ? 'Reset to In Progress' : 'Mark as Completed'}
+            </button>
           </div>
         `;
 
@@ -982,22 +1006,28 @@ function loadTasks() {
   }
 }
 
-function changeStartToResume(index) {
-  const startBtn = document.getElementById(`start-btn-${index}`);
-  if (startBtn && startBtn.innerText !== "Resume") {
-    startBtn.innerText = "Resume";
+function taskCompleted(index) {
+  const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+  const task = tasks[index];
+
+  if (task.completed) {
+    
+    task.completed = false;
+    task.startTime = new Date().toISOString(); 
+    task.endTime = null; 
+  } else {
+  
+    task.completed = true;
+    task.endTime = new Date().toISOString(); 
+    task.startTime = null; 
   }
+
+
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+
+
+  loadTasks();
 }
-
-
-
-// function formatTime(seconds) {
-//   const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
-//   const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
-//   const s = String(seconds % 60).padStart(2, '0');
-//   return `${h}:${m}:${s}`;
-// }
-
 
 
 function formatTime(totalSeconds) {
@@ -1106,17 +1136,16 @@ function startTaskTimer(index) {
   const startButton = document.getElementById(`start-btn-${index}`);
 
   if (!task.startTime && !task.endTime) {
-    // First time starting
+  
     task.startTime = new Date().toISOString();
-    task.sessions.push({ start: Date.now(), end: Date.now() }); // at stop time
-
-    startButton.innerText = "Start"; // Show Start
+    task.sessions.push({ start: Date.now(), end: Date.now() }); 
+    startButton.innerText = "Start"; 
   } else if (!task.startTime && task.endTime) {
-    // Resuming task after stopping
+    
     task.startTime = new Date().toISOString();
-    task.sessions.push({ start: Date.now(), end: Date.now() }); // at stop time
-
-    startButton.innerText = "Resume"; // Keep Resume
+    task.sessions.push({ start: Date.now(), end: Date.now() }); 
+    startButton.innerText = "Resume"; 
+    
   }
 
   currentTaskIndex = index;
@@ -1138,28 +1167,31 @@ function stopTaskTimer() {
   const startButton = document.getElementById(`start-btn-${currentTaskIndex}`);
 
   const now = new Date();
-  const sessionDuration = (now - new Date(task.sessions[task.sessions.length - 1].start)) / 1000; // in seconds
-  task.sessions[task.sessions.length - 1].end = now.toISOString(); // Mark the end time of the current session
+  const sessionDuration = (now - new Date(task.sessions[task.sessions.length - 1].start)) / 1000; 
+  task.sessions[task.sessions.length - 1].end = now.toISOString(); 
 
-  // Update total time by adding the current session's duration
+ 
   task.totalSeconds = (task.totalSeconds || 0) + Math.floor(sessionDuration);
 
-  task.startTime = null;  // Reset start time after stopping the task
+  task.startTime = null;  
+
+  
+  task.endTime = now.toISOString();
 
   localStorage.setItem("tasks", JSON.stringify(tasks));
   currentTaskIndex = null;
   startTime = null;
 
-  loadTasks();
+  loadTasks();  
+  changeStartToResume(currentTaskIndex); 
 }
+
 
 
 function calculateDuration(task) {
-  // Return the total accumulated seconds for this task
+  
   return task.totalSeconds || 0;
 }
-
-
 
 function showUser() {
   viewMode = "user";
@@ -1191,7 +1223,7 @@ function showUser() {
       `;
 
       if (sessions.length > 0) {
-        // Function to calculate duration for sessions
+        
         const calculateDuration = (start, stop) => {
           if (start && stop) {
             return Math.floor((stop - start) / 1000);
@@ -1199,7 +1231,6 @@ function showUser() {
           return 0;
         };
 
-        // Session 0 = main start/stop
         const first = sessions[0];
         const start = first.start ? new Date(first.start) : null;
         const stop = first.end ? new Date(first.end) : null;
@@ -1212,7 +1243,6 @@ function showUser() {
           <br><strong>Duration:</strong> ${stop ? formatTime(mainDuration) : "Running..."}
         `;
 
-        // Remaining sessions = Resume sessions
         sessions.slice(1).forEach((resume, i) => {
           const resumeStart = resume.start ? new Date(resume.start) : null;
           const resumeStop = resume.end ? new Date(resume.end) : null;
@@ -1238,4 +1268,17 @@ function showUser() {
   }
 }
 
+function changeStartToResume(index) {
+  let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+  const task = tasks[index];
 
+  
+  if (task && task.startTime === null && task.endTime !== null) {
+    const startButton = document.getElementById(`start-btn-${index}`);
+    
+  
+    if (startButton) {
+      startButton.innerText = "Resume";
+    }
+  }
+}
