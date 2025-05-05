@@ -272,6 +272,11 @@ button.styled-btn{
   border-radius: 5px;
 }
 
+.arrow{
+  display: flex;
+  flex-direction: row-reverse;
+}
+
 /* @media (min-width: 768px) {
     #dashboard-section {
       flex-direction: column;
@@ -306,9 +311,6 @@ button.styled-btn{
   color: #333;
 } */
 
-.task{
-  
-}
 
 
 

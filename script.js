@@ -447,27 +447,30 @@ function showUser() {
     const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
     const userTasks = tasks.filter(task => task.email === user.email);
 
-    userTasks.forEach(task => {
+    userTasks.forEach((task, index) => {
       const taskEl = document.createElement("div");
       taskEl.className = "task";
 
       const sessions = task.sessions || [];
       let totalSeconds = 0;
+
+      const calculateDuration = (start, stop) => {
+        if (start && stop) {
+          return Math.floor((stop - start) / 1000);
+        }
+        return 0;
+      };
+
       let html = `
         <hr>
         <strong>Task:</strong> ${task.name}<br>
+        <div class="arrow">
+          <i class="fa-solid fa-chevron-down" style="cursor: pointer; " onclick="toggleResumeSection(${index})"></i>
+        </div>
         <strong>Description:</strong> ${task.description || "No description"}<br>
       `;
 
       if (sessions.length > 0) {
-        
-        const calculateDuration = (start, stop) => {
-          if (start && stop) {
-            return Math.floor((stop - start) / 1000);
-          }
-          return 0;
-        };
-
         const first = sessions[0];
         const start = first.start ? new Date(first.start) : null;
         const stop = first.end ? new Date(first.end) : null;
@@ -478,6 +481,9 @@ function showUser() {
           <br><strong>Start:</strong> ${start ? start.toLocaleString() : "N/A"}
           <br><strong>Stop:</strong> ${stop ? stop.toLocaleString() : "Running..."}
           <br><strong>Duration:</strong> ${stop ? formatTime(mainDuration) : "Running..."}
+          <br>
+          
+          <div id="resume-section-${index}" style="display: none; margin-top: 10px;">
         `;
 
         sessions.slice(1).forEach((resume, i) => {
@@ -487,23 +493,33 @@ function showUser() {
           totalSeconds += resumeDuration;
 
           html += `
-            <br><br><strong>Resume ${i + 1}</strong>
-            <br><strong>Resume Start:</strong> ${resumeStart ? resumeStart.toLocaleString() : "N/A"}
-            <br><strong>Resume Stop:</strong> ${resumeStop ? resumeStop.toLocaleString() : "Running..."}
-            <br><strong>Resume Duration:</strong> ${resumeStop ? formatTime(resumeDuration) : "Running..."}
+            <div>
+              <strong>Resume ${i + 1}</strong><br>
+              <strong>Resume Start:</strong> ${resumeStart ? resumeStart.toLocaleString() : "N/A"}<br>
+              <strong>Resume Stop:</strong> ${resumeStop ? resumeStop.toLocaleString() : "Running..."}<br>
+              <strong>Resume Duration:</strong> ${resumeStop ? formatTime(resumeDuration) : "Running..."}<br>
+            </div><br>
           `;
         });
+
+        html += `</div>`;
       }
 
-      html += `<br><br><strong>Total Duration:</strong> ${formatTime(totalSeconds)}`;
+      html += `<br><strong>Total Duration:</strong> ${formatTime(totalSeconds)}`;
 
       taskEl.innerHTML = html;
       userTaskList.appendChild(taskEl);
     });
-
-    
   }
 }
+
+function toggleResumeSection(index) {
+  const section = document.getElementById(`resume-section-${index}`);
+  if (section) {
+    section.style.display = section.style.display === "none" ? "block" : "none";
+  }
+}
+
 
 function changeStartToResume(index) {
   let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
@@ -520,16 +536,4 @@ function changeStartToResume(index) {
   }
 }
 
-
-// function hideAllSections() {
-//   document.getElementById("add-task-section").style.display = "none";
-//   document.getElementById("tasks-section").style.display = "none";
-//   document.getElementById("summary-section").style.display = "none";
-//   document.getElementById("user-tasks-section").style.display = "none";
-//   const dailySection = document.getElementById("daily-tasks-section");
-//   if (dailySection) dailySection.style.display = "none"; // in case it exists
-// }
-
-
-// this is my code in this when  i click the showTasks and then click the showUser the showUser will open in the showTasks page same like it happen when i clik the  showDailyTasks and then showUser
 
