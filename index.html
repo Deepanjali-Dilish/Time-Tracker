@@ -4,13 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="style.css" />
   <title>Time Tracker</title>
 </head>
 <body>
 
   <div class="top-bar">
-    <h1 class="title">TRACKTIME</h1>
+    <h1 class="title">TRACKTIME<span class="clock"> ⏱ </span></h1>
     <button id="login-btn" onclick="toggleLoginForm()">Login</button>
   </div>
 
@@ -31,6 +32,7 @@
           <span id="arrow" class="toggle-arrow" onclick="toggleSubmenu()" style="cursor: pointer;">&#9662;</span>
         </li>
         <li id="daily-tasks" onclick ="showDailyTasks()">Daily Tasks</li>
+        <li id="status" onclick="showStatus()">Daily Status</li>
         <li id="userTasks" onclick="showUser()">User</li>
       </ul>
     </aside>
@@ -50,9 +52,10 @@
       </div>
           <!-- <h3>Tasks</h3> -->
 
-      <!-- <div id="tasks"></div> -->
+      <div id="tasks"></div>
 
       <div id="summary-section">
+        <div id="running-task" class="summary-box">No task is currently running</div>
         <div id="total-time" class="summary-box"></div>
         <div id="recent-tasks" class="summary-box">
           <h3 class="title-recent" id="recent">Recent Tasks</h3>
@@ -60,6 +63,13 @@
         </div>
 
       </div>
+
+       <section id="status-section" style="display:none;">
+        <h2>Daily Status Overview</h2>
+        <canvas id="status-chart" width="300" height="250"></canvas>
+        <div id="chart-message" style="color: red; font-size: 14px;"></div>
+      </section>
+      
 
       <div id="user-tasks-section" style="display: none;">
         <h3>User's Tasks</h3>

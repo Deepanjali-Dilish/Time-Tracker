@@ -60,25 +60,12 @@ function showTasks() {
   loadTasks();
 }
 
-// function displaySections(activeSection) {
-//   const sections = {
-//     "add-task": "add-task-section",
-//     "tasks": "tasks-section",
-//     "summary": "summary-section",
-//     "user": "user-tasks-section"
-//   };
-
-//   for (const key in sections) {
-//     const sectionId = sections[key];
-//     document.getElementById(sectionId).style.display = (key === activeSection) ? "block" : "none";
-//   }
-// }
-
 function displaySections(sectionName) {
   document.getElementById("add-task-section").style.display = "none";
   document.getElementById("tasks-section").style.display = "none";
   document.getElementById("summary-section").style.display = "none";
   document.getElementById("user-tasks-section").style.display = "none";
+  document.getElementById("status-section").style.display = "none"
 
   switch (sectionName) {
     case "summary":
@@ -96,10 +83,12 @@ function displaySections(sectionName) {
     case "daily":
       document.getElementById("tasks-section").style.display = "block";  
       break;
+      case "status":
+        document.getElementById("status-section").style.display = "block";
+        break;
+      
   }
 }
-
-
 
 function addTask() {
   const name = document.getElementById("task-name").value.trim();
@@ -110,9 +99,9 @@ function addTask() {
   const user = JSON.parse(localStorage.getItem("user"));
   if (!user || !user.email) return alert("User not logged in.");
 
-  const today = new Date().toISOString().split("T")[0];
+  const today = new Date().toISOString().split("T")[0];  // "YYYY-MM-DD" format
 
-  tasks.push({
+  const newTask = {
     name,
     description: desc,
     created: today,
@@ -121,14 +110,19 @@ function addTask() {
     endTime: null,
     totalSeconds: 0,
     sessions: []
-  });
+  };
 
+  tasks.push(newTask);
   localStorage.setItem("tasks", JSON.stringify(tasks));
+  
+  console.log('Task Added:', newTask);
+  console.log('Updated Task List:', tasks);
+
   document.getElementById("task-name").value = '';
   document.getElementById("task-description").value = '';
-  loadTasks();
+  
+  loadTasks();  
 }
-
 
 
 function editCurrentTask(index) {
@@ -149,18 +143,23 @@ function deleteTask(index) {
   tasks.splice(index, 1);
   localStorage.setItem("tasks", JSON.stringify(tasks));
   loadTasks();
+  
+  document.getElementById('status-chart-container').innerHTML = '<canvas id="status-chart"></canvas>';
+renderStatusChart();
+
 }
 
 
-
-function showIndividualTotal(index) {
-  const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-  const task = tasks[index];
+function showIndividualTotal(task) {
   const seconds = calculateDuration(task);
-  const displayEl = document.getElementById(`total-display-${index}`);
-  if (displayEl) displayEl.innerText = `Total Time: ${formatTime(seconds)}`;
+  const taskId = task.id || task.name;
+  const displayEl = document.getElementById(`total-display-${taskId}`);
+  if (displayEl) {
+    displayEl.innerText = `Total Time: ${formatTime(seconds)}`;
+  } else {
+    console.error("Missing display element for:", taskId);
+  }
 }
-
 
 function loadTasks() {
   const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
@@ -169,6 +168,7 @@ function loadTasks() {
 
   const totalSeconds = tasks.reduce((sum, task) => sum + calculateDuration(task), 0);
   document.getElementById("total-time").innerText = `Total Time Tracked Today: ${formatTime(totalSeconds)}`;
+
 
   const recentList = document.getElementById("recent-tasks-list");
   recentList.innerHTML = '';
@@ -181,6 +181,7 @@ function loadTasks() {
   if (viewMode === "user") return;
 
   if (viewMode === "dashboard" && currentTaskIndex !== null && tasks[currentTaskIndex]) {
+    updateRunningTask(tasks)
     const task = tasks[currentTaskIndex];
     const taskEl = document.createElement("div");
     taskEl.className = "task";
@@ -189,8 +190,7 @@ function loadTasks() {
       <p><strong>Time:</strong> ${formatTime(calculateDuration(task))}</p>
     `;
     taskContainer.appendChild(taskEl);
-
-  } else if (viewMode === "tasks") {
+  }else if (viewMode === "tasks") {
     if (tasks.length === 0) {
       taskContainer.innerHTML = '<p class="task-space">No tasks available. Add a new task.</p>';
     } else {
@@ -224,7 +224,7 @@ function loadTasks() {
           </p>
           <strong>${task.name}</strong>
           <p class="space">${task.description}</p>
-          <p><strong>Time:</strong> <span id="timer-display-${index}">${formatTime(calculateDuration(task))}</span></p>
+          <p><strong>Time ⏱ :</strong> <span id="timer-display-${index}">${formatTime(calculateDuration(task))}</span></p>
           <div class="tasks" style="margin-top: 10px">
             ${task.completed ? '' : `
               <button id="start-btn-${index}" class="styled-btn" onclick="event.stopPropagation(); startTaskTimer(${index})">
@@ -278,32 +278,16 @@ function formatTime(totalSeconds) {
   return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
-function updateTimerDisplay(index) {
-  const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-  const task = tasks[index];
-  if (!task) return;
-
-  let totalSeconds = task.totalSeconds || 0;
-  if (task.startTime) {
-    const runningSeconds = Math.floor((new Date() - new Date(task.startTime)) / 1000);
-    totalSeconds += runningSeconds;
-  }
-
-  const displayEl = document.getElementById(`timer-display-${index}`);
-  if (displayEl) {
-    displayEl.innerText = formatTime(totalSeconds);
-  }
-}
-
-
 function toggleSubmenu() {
   const dailyTasks = document.getElementById("daily-tasks");
   const userTasks = document.getElementById("userTasks");
+  const status = document.getElementById("status")
   const arrow = document.getElementById("arrow");
 
   const isVisible = dailyTasks.style.display === "block";
   dailyTasks.style.display = isVisible ? "none" : "block";
   userTasks.style.display = isVisible ? "none" : "block";
+  status.style.display = isVisible ? "none" : "block";
   arrow.innerHTML = isVisible ? "&#9662;" : "&#9650;";
 }
 
@@ -312,31 +296,41 @@ function showDailyTasks() {
   displaySections("daily");
 
   const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-  const today = new Date().toISOString().split("T")[0];
+  const today = new Date().toISOString().split("T")[0];  
   const taskContainer = document.getElementById("tasks");
-  taskContainer.innerHTML = '';
+  taskContainer.innerHTML = ''; 
 
-  const dailyTasks = tasks.map((task, i) => ({ ...task, originalIndex: i })).filter(task => task.created === today);
+  console.log('All Tasks from LocalStorage:', tasks);
+  console.log('Today\'s Date:', today);
+
+  const dailyTasks = tasks.filter(task => {
+    console.log('Comparing:', task.created, 'with', today);
+    return task.created === today;
+  });
+
+  console.log('Filtered Daily Tasks:', dailyTasks);
 
   if (dailyTasks.length === 0) {
     taskContainer.innerHTML = '<p class="task-space">No daily tasks for today.</p>';
   } else {
     dailyTasks.forEach(task => {
+      const taskId = task.id || task.name; 
       const taskEl = document.createElement("div");
       taskEl.className = "task";
       taskEl.innerHTML = `
         <strong>${task.name}</strong>
         <p class="space">${task.description}</p>
-        <p><strong>Time:</strong> ${formatTime(calculateDuration(task))}</p>
         <div class="tasks" style="margin-bottom: 10px">
-          <button class="styled-btn" onclick="showIndividualTotal(${task.originalIndex})">Total</button>
+          <button class="styled-btn" onclick='showIndividualTotal(${JSON.stringify(task)})'>Total</button>
         </div>
-        <p id="total-display-${task.originalIndex}" style="font-weight: bold; color: #333;"></p>
+        <p id="total-display-${taskId}" style="font-weight: bold; color: #333;"></p>
       `;
       taskContainer.appendChild(taskEl);
     });
+    
   }
 }
+
 
 
 function onTaskClick(index) {
@@ -362,13 +356,16 @@ window.onload = function() {
     loginBtn.innerText = "Login";
     loginBtn.onclick = () => toggleLoginForm();
     document.getElementById("add-task-nav").style.display = "none";
+    
   }
 
   showDashboard();
   loadTasks();
 };
 
+
 function startTaskTimer(index) {
+  
   if (timerInterval) clearInterval(timerInterval);
 
   let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
@@ -376,10 +373,13 @@ function startTaskTimer(index) {
   const startButton = document.getElementById(`start-btn-${index}`);
   const now = new Date();
 
+
   if (!task.sessions) task.sessions = [];
 
+  
   task.startTime = now.toISOString();
   task.sessions.push({ start: now.toISOString(), end: null });
+
 
   if (task.sessions.length === 1) {
     startButton.innerText = "Start";
@@ -388,17 +388,23 @@ function startTaskTimer(index) {
   }
 
   currentTaskIndex = index;
+
+
   localStorage.setItem("tasks", JSON.stringify(tasks));
+
   updateTimerDisplay(index);
 
   timerInterval = setInterval(() => {
-    updateTimerDisplay(index);
+    updateRunningTask(tasks); 
+    updateTimerDisplay(index); 
   }, 1000);
 }
 
-
 function stopTaskTimer() {
+  
   if (timerInterval) clearInterval(timerInterval);
+
+
   if (currentTaskIndex === null) return;
 
   let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
@@ -409,6 +415,7 @@ function stopTaskTimer() {
   if (currentSession && !currentSession.end) {
     currentSession.end = now.toISOString();
 
+
     const durationSec = Math.floor((new Date(currentSession.end) - new Date(currentSession.start)) / 1000);
     task.totalSeconds = (task.totalSeconds || 0) + durationSec;
   }
@@ -416,19 +423,51 @@ function stopTaskTimer() {
   task.startTime = null;
   task.endTime = now.toISOString();
 
+ 
   localStorage.setItem("tasks", JSON.stringify(tasks));
+
+ 
   loadTasks();
+  updateRunningTask(); 
+
 
   currentTaskIndex = null;
 }
 
+function updateTimerDisplay(index) {
+  const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+  const task = tasks[index];
+  if (!task) return;
+
+  let totalSeconds = task.totalSeconds || 0;
+
+  if (task.startTime) {
+    const runningSeconds = Math.floor((new Date() - new Date(task.startTime)) / 1000);
+    totalSeconds += runningSeconds;
+  }
+
+  const displayEl = document.getElementById(`timer-display-${index}`);
+  if (displayEl) {
+    displayEl.innerText = formatTime(totalSeconds);
+  }
+
+}
 
 
 
 function calculateDuration(task) {
-  
-  return task.totalSeconds || 0;
+  let duration = task.totalSeconds || 0;
+
+  if (!task.isCompleted && task.startTime) {
+    const now = new Date();
+    const start = new Date(task.startTime);
+    const runningSeconds = Math.floor((now - start) / 1000);
+    duration += runningSeconds;
+  }
+
+  return duration;
 }
+
 
 function showUser() {
   viewMode = "user";
@@ -534,6 +573,133 @@ function changeStartToResume(index) {
       startButton.innerText = "Resume";
     }
   }
+}
+
+
+
+function updateRunningTask() {
+
+  let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+  if (!Array.isArray(tasks)) {
+    console.error("Tasks is not an array:", tasks);
+    return; 
+  }
+
+  const runningTask = tasks.find(task => task.startTime && !task.completed);
+
+  const runningTaskDiv = document.getElementById("running-task");
+
+  if (!runningTask) {
+    runningTaskDiv.innerHTML = "<p>No task is currently running.</p>";
+    return;
+  }
+
+  const runningDuration = calculateDuration(runningTask);
+  runningTaskDiv.innerHTML = `
+    <p style="font-weight: bold; color: green;">Running Task ⏱</p>
+    <strong>${runningTask.name}</strong>
+    <p>${runningTask.description}</p>
+    <p><strong>Time:</strong> <span>${formatTime(runningDuration)}</span></p>
+  `;
+}
+
+function showStatus() {
+  viewMode = "status";
+  displaySections("status");
+  renderStatusChart(); 
+}
+
+
+let statusChart = null;
+
+function renderStatusChart() {
+  const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+  const today = new Date().toISOString().split('T')[0];
+
+  const todaysTasks = tasks.filter(task => task.created === today && task.totalSeconds > 0);
+
+  console.log("Today's Tasks:", todaysTasks);
+
+  const labels = todaysTasks.map(task => task.name);
+  const durations = todaysTasks.map(task => {
+    let totalSeconds = task.totalSeconds || 0;
+
+    if (task.startTime) {
+      const now = new Date();
+      const startTime = new Date(task.startTime);
+      totalSeconds += Math.floor((now - startTime) / 1000);
+    }
+
+    return totalSeconds / 60; 
+  });
+
+  console.log("Task Labels:", labels);
+  console.log("Durations:", durations);
+
+
+  if (labels.length === 0 || durations.length === 0) {
+    document.getElementById('status-chart').innerHTML = '<p>No tasks to display for today.</p>';
+    return;
+  }
+
+  const maxDuration = Math.max(...durations, 360); 
+
+  const ctx = document.getElementById('status-chart').getContext('2d');
+
+  if (statusChart) statusChart.destroy();
+
+  
+  statusChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Task Duration (mins)', 
+        data: durations,
+        backgroundColor: '#1b1fec', 
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        title: { display: true, text: 'Task Duration for Today' },
+        tooltip: {
+          callbacks: {
+            label: function(tooltipItem) {
+              const minutes = tooltipItem.raw;
+              const hours = Math.floor(minutes / 60);
+              const mins = Math.floor(minutes % 60);
+              return `${hours > 0 ? hours + 'hr ' : ''}${mins > 0 ? mins + 'm' : '0m'}`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          title: { display: true,  text: 'Task Name' },
+        },
+        y: {
+          beginAtZero: true,
+          max: maxDuration, 
+          title: { display: true, text: 'Duration' },
+          ticks: {
+            stepSize: 60, 
+            callback: function(value) {
+              const hours = Math.floor(value / 60);
+              if (hours > 0) {
+                return `${hours}hr`; 
+              } else {
+                return `${value}m`; 
+              }
+            }
+          }
+        }
+      }
+    }
+  });
 }
 
 

@@ -277,42 +277,9 @@ button.styled-btn{
   flex-direction: row-reverse;
 }
 
-/* @media (min-width: 768px) {
-    #dashboard-section {
-      flex-direction: column;
+.clock{
+  color: white;
 }
-.toggle-arrow{
-  display: none;
-}
-
-.sidebar {
-    width: 220px;
-    background: #1b95ec;
-    color: white;
-    padding: 20px;
-    height: 100%;
-  }
-} */
-
-/* Optional: For better styling of the user section */
-/* #user-tasks-section {
-  padding: 20px;
-  background: #f7f7f7;
-  border-radius: 5px;
-  margin-top: 20px;
-}
-
-#user-tasks-section h3 {
-  margin-bottom: 15px;
-}
-
-#user-tasks-section p {
-  font-size: 1rem;
-  color: #333;
-} */
-
-
-
 
 @media (min-width: 768px) {
   #dashboard-section {
@@ -443,4 +410,5 @@ button.styled-btn{
   .task-space{
     font-size: 20px;
   }
+  
 }
