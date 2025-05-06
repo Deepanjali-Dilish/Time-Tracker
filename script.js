@@ -66,6 +66,7 @@ function displaySections(sectionName) {
   document.getElementById("summary-section").style.display = "none";
   document.getElementById("user-tasks-section").style.display = "none";
   document.getElementById("status-section").style.display = "none"
+  document.getElementById("week-status").style.display = "none"
 
   switch (sectionName) {
     case "summary":
@@ -83,9 +84,12 @@ function displaySections(sectionName) {
     case "daily":
       document.getElementById("tasks-section").style.display = "block";  
       break;
-      case "status":
-        document.getElementById("status-section").style.display = "block";
-        break;
+    case "status":
+      document.getElementById("status-section").style.display = "block";
+      break;
+    case "week":
+      document.getElementById("week-status").style.display = "block";
+      break
       
   }
 }
@@ -93,13 +97,13 @@ function displaySections(sectionName) {
 function addTask() {
   const name = document.getElementById("task-name").value.trim();
   const desc = document.getElementById("task-description").value.trim();
-  if (!name || !desc) return alert("Enter both task name and description.");
+  if (!name || !desc) return alert("Enter the details.");
 
   const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
   const user = JSON.parse(localStorage.getItem("user"));
   if (!user || !user.email) return alert("User not logged in.");
 
-  const today = new Date().toISOString().split("T")[0];  // "YYYY-MM-DD" format
+  const today = new Date().toISOString().split("T")[0];  
 
   const newTask = {
     name,
@@ -143,11 +147,9 @@ function deleteTask(index) {
   tasks.splice(index, 1);
   localStorage.setItem("tasks", JSON.stringify(tasks));
   loadTasks();
-  
-  document.getElementById('status-chart-container').innerHTML = '<canvas id="status-chart"></canvas>';
-renderStatusChart();
-
+  renderStatusChart(); 
 }
+
 
 
 function showIndividualTotal(task) {
@@ -281,13 +283,15 @@ function formatTime(totalSeconds) {
 function toggleSubmenu() {
   const dailyTasks = document.getElementById("daily-tasks");
   const userTasks = document.getElementById("userTasks");
-  const status = document.getElementById("status")
+  const status = document.getElementById("status");
+  const week = document.getElementById("week");
   const arrow = document.getElementById("arrow");
 
   const isVisible = dailyTasks.style.display === "block";
   dailyTasks.style.display = isVisible ? "none" : "block";
   userTasks.style.display = isVisible ? "none" : "block";
   status.style.display = isVisible ? "none" : "block";
+  week.style.display = isVisible ? "none" : "block";
   arrow.innerHTML = isVisible ? "&#9662;" : "&#9650;";
 }
 
@@ -610,6 +614,11 @@ function showStatus() {
   renderStatusChart(); 
 }
 
+function weeklyStatus(){
+  viewMode = "week";
+  displaySections("week")
+}
+
 
 let statusChart = null;
 
@@ -638,12 +647,20 @@ function renderStatusChart() {
   console.log("Task Labels:", labels);
   console.log("Durations:", durations);
 
+  const chartMessage = document.getElementById('chart-message');
+  const chartCanvas = document.getElementById('status-chart');
+
 
   if (labels.length === 0 || durations.length === 0) {
-    document.getElementById('status-chart').innerHTML = '<p>No tasks to display for today.</p>';
+    chartMessage.textContent = 'No tasks to display for today.';
+    chartCanvas.style.display = 'none';   
     return;
+  } else {
+    chartMessage.textContent = '';        
+    chartCanvas.style.display = 'block';  
   }
-
+  
+  
   const maxDuration = Math.max(...durations, 360); 
 
   const ctx = document.getElementById('status-chart').getContext('2d');
@@ -701,5 +718,4 @@ function renderStatusChart() {
     }
   });
 }
-
 
