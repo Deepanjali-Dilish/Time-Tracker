@@ -31,10 +31,23 @@ function login() {
 }
 
 function logout() {
+  const currentUser = JSON.parse(localStorage.getItem("user"));
+  const allTasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+  const updatedTasks = allTasks.filter(task => task.email !== currentUser.email);
+
+  if (updatedTasks.length > 0) {
+    localStorage.setItem("tasks", JSON.stringify(updatedTasks));
+  } else {
+    localStorage.removeItem("tasks");
+  }
+
   localStorage.removeItem("user");
   localStorage.removeItem("currentTaskIndex");
+
   location.reload();
 }
+
 
 function showDashboard() {
   viewMode = "dashboard";
@@ -66,7 +79,7 @@ function displaySections(sectionName) {
   document.getElementById("summary-section").style.display = "none";
   document.getElementById("user-tasks-section").style.display = "none";
   document.getElementById("status-section").style.display = "none"
-  document.getElementById("week-status").style.display = "none"
+  document.getElementById("weekly-status-section").style.display = "none"
 
   switch (sectionName) {
     case "summary":
@@ -88,7 +101,7 @@ function displaySections(sectionName) {
       document.getElementById("status-section").style.display = "block";
       break;
     case "week":
-      document.getElementById("week-status").style.display = "block";
+      document.getElementById("weekly-status-section").style.display = "block";
       break
       
   }
@@ -168,17 +181,25 @@ function loadTasks() {
   const taskContainer = document.getElementById("tasks");
   taskContainer.innerHTML = '';
 
-  const totalSeconds = tasks.reduce((sum, task) => sum + calculateDuration(task), 0);
+  // const totalSeconds = tasks.reduce((sum, task) => sum + calculateDuration(task), 0);
+  // document.getElementById("total-time").innerText = `Total Time Tracked Today: ${formatTime(totalSeconds)}`;
+
+  const today = new Date().toISOString().split("T")[0];
+
+  const todayTasks = tasks.filter(task => task.created === today);
+
+  const totalSeconds = todayTasks.reduce((sum, task) => sum + calculateDuration(task), 0);
+
   document.getElementById("total-time").innerText = `Total Time Tracked Today: ${formatTime(totalSeconds)}`;
 
-
+  
   const recentList = document.getElementById("recent-tasks-list");
   recentList.innerHTML = '';
   tasks.slice(-3).reverse().forEach(task => {
     const item = document.createElement("li");
     item.textContent = task.name;
     recentList.appendChild(item);
-  });
+  });``
 
   if (viewMode === "user") return;
 
@@ -355,11 +376,10 @@ window.onload = function() {
   if (user && user.email) {
     loginBtn.innerText = "Logout";
     loginBtn.onclick = logout;
-    document.getElementById("add-task-nav").style.display = "block";
   } else {
     loginBtn.innerText = "Login";
     loginBtn.onclick = () => toggleLoginForm();
-    document.getElementById("add-task-nav").style.display = "none";
+    //document.getElementById("add-task-nav").style.display = "none";
     
   }
 
@@ -369,21 +389,21 @@ window.onload = function() {
 
 
 function startTaskTimer(index) {
-  
-  if (timerInterval) clearInterval(timerInterval);
+
+  if (currentTaskIndex !== null) {
+    alert("Please stop the current task before starting a new one.");
+    return; 
+  }
 
   let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
   const task = tasks[index];
   const startButton = document.getElementById(`start-btn-${index}`);
   const now = new Date();
 
-
   if (!task.sessions) task.sessions = [];
 
-  
   task.startTime = now.toISOString();
   task.sessions.push({ start: now.toISOString(), end: null });
-
 
   if (task.sessions.length === 1) {
     startButton.innerText = "Start";
@@ -392,7 +412,6 @@ function startTaskTimer(index) {
   }
 
   currentTaskIndex = index;
-
 
   localStorage.setItem("tasks", JSON.stringify(tasks));
 
@@ -403,6 +422,8 @@ function startTaskTimer(index) {
     updateTimerDisplay(index); 
   }, 1000);
 }
+
+
 
 function stopTaskTimer() {
   
@@ -589,6 +610,9 @@ function updateRunningTask() {
     console.error("Tasks is not an array:", tasks);
     return; 
   }
+ 
+  //if (!Array.isArray(tasks)) tasks = [];
+
 
   const runningTask = tasks.find(task => task.startTime && !task.completed);
 
@@ -614,10 +638,12 @@ function showStatus() {
   renderStatusChart(); 
 }
 
-function weeklyStatus(){
+function weeklyStatus() {
   viewMode = "week";
-  displaySections("week")
+  displaySections("week");
+  renderWeeklyChart(); 
 }
+
 
 
 let statusChart = null;
@@ -718,4 +744,98 @@ function renderStatusChart() {
     }
   });
 }
+
+
+function renderWeeklyChart() {
+  const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+  const today = new Date();
+  const startOfWeek = new Date(today);
+  startOfWeek.setDate(today.getDate() - today.getDay() + 1); 
+
+  const daysOfWeek = [];
+  for (let i = 0; i < 7; i++) {
+    const day = new Date(startOfWeek);
+    day.setDate(startOfWeek.getDate() + i);
+    daysOfWeek.push(day.toISOString().split('T')[0]); 
+  }
+
+  const weeklyDurations = daysOfWeek.map(day => {
+    return tasks
+      .filter(task => task.created === day && task.totalSeconds > 0)
+      .reduce((sum, task) => sum + calculateDuration(task), 0);  
+  });
+
+  const labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const durations = weeklyDurations.map(seconds => seconds / 60); 
+
+  const chartMessage = document.getElementById('weekly-chart-message');
+  const chartCanvas = document.getElementById('weekly-chart');
+
+  if (durations.every(duration => duration === 0)) {
+    chartMessage.textContent = 'No tasks to display for this week.';
+    chartCanvas.style.display = 'none';
+    return;
+  } else {
+    chartMessage.textContent = '';
+    chartCanvas.style.display = 'block';
+  }
+
+  if (statusChart) {
+    statusChart.destroy();
+  }
+
+  const ctx = chartCanvas.getContext('2d');
+
+  statusChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Task Duration (mins)',
+        data: durations,
+        backgroundColor: '#1b1fec',
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        title: { display: true, text: 'Weekly Task Duration' },
+        tooltip: {
+          callbacks: {
+            label: function(tooltipItem) {
+              const minutes = tooltipItem.raw;
+              const hours = Math.floor(minutes / 60);
+              const mins = Math.floor(minutes % 60);
+              return `${hours > 0 ? hours + 'hr ' : ''}${mins > 0 ? mins + 'm' : '0m'}`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          title: { display: true, text: 'Day of the Week' },
+        },
+        y: {
+          beginAtZero: true,
+          max: Math.max(...durations, 360), 
+          title: { display: true, text: 'Duration' },
+          ticks: {
+            stepSize: 60,
+            callback: function(value) {
+              const hours = Math.floor(value / 60);
+              if (hours > 0) {
+                return `${hours}hr`;
+              } else {
+                return `${value}m`;
+              }
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
 

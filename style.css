@@ -281,9 +281,20 @@ button.styled-btn{
   color: white;
 }
 
+#weekly-chart {
+  width: 100%;
+  height: 250px; /* Default height for mobile view */
+}
+
+
+
+
+
 @media (min-width: 768px) {
   #dashboard-section {
     flex-direction: row; 
+    overflow: hidden;
+    scrollbar-width: none;
   }
 
   .sidebar {
@@ -330,6 +341,10 @@ button.styled-btn{
   .top-bar{
     padding-left: 20px;
     padding-right: 20px;
+  }
+
+  #weekly-chart {
+    height: 200px; /* Smaller height for desktop view */
   }
 }
 
