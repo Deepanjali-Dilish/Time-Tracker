@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
   <link rel="stylesheet" href="style.css" />
   <title>Time Tracker</title>
 </head>
@@ -64,30 +64,22 @@
         </div>
 
       </div>
-
+<!-- 
        <section id="status-section" style="display:none;">
         <h2>Daily Status Overview</h2>
         <canvas id="status-chart" width="300" height="250"></canvas>
         <div id="chart-message" style="color: red; font-size: 14px;"></div>
-      </section>
-      
-      <!-- <div id="week-status">weekly Status</div> -->
+      </section> -->
+
+      <div id="task-graph" class="bar-graph">
+          <h2>Daily Status Overview</h2>
+      </div>
 
       <section id="weekly-status-section" style="display: none;">
         <h2>Weekly Status Overview</h2>
         <canvas id="weekly-chart" width="300" height="250" style="max-width: 100%;"></canvas>
         <div id="weekly-chart-message" style="color: red; font-size: 14px;"></div>
       </section>
-      
-
-       <!-- <section id="weekly-status-section" style="display: none;">
-        <h2>Weekly Status Overview</h2>
-        <div id="chart-container">
-          <canvas id="weekly-chart"></canvas>
-          <div id="weekly-chart-message" style="color: red; font-size: 14px;"></div>
-        </div>
-      </section> -->
-      
 
       <div id="user-tasks-section" style="display: none;">
         <h3>User's Tasks</h3>

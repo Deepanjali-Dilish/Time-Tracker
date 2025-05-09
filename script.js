@@ -78,7 +78,7 @@ function displaySections(sectionName) {
   document.getElementById("tasks-section").style.display = "none";
   document.getElementById("summary-section").style.display = "none";
   document.getElementById("user-tasks-section").style.display = "none";
-  document.getElementById("status-section").style.display = "none"
+  document.getElementById("task-graph").style.display = "none"
   document.getElementById("weekly-status-section").style.display = "none"
 
   switch (sectionName) {
@@ -98,7 +98,7 @@ function displaySections(sectionName) {
       document.getElementById("tasks-section").style.display = "block";  
       break;
     case "status":
-      document.getElementById("status-section").style.display = "block";
+      document.getElementById("task-graph").style.display = "block";
       break;
     case "week":
       document.getElementById("weekly-status-section").style.display = "block";
@@ -247,7 +247,7 @@ function loadTasks() {
           </p>
           <strong>${task.name}</strong>
           <p class="space">${task.description}</p>
-          <p><strong>Time ⏱ :</strong> <span id="timer-display-${index}">${formatTime(calculateDuration(task))}</span></p>
+          <p><strong>Timer ⏱ :</strong> <span id="timer-display-${index}">${formatTime(calculateDuration(task))}</span></p>
           <div class="tasks" style="margin-top: 10px">
             ${task.completed ? '' : `
               <button id="start-btn-${index}" class="styled-btn" onclick="event.stopPropagation(); startTaskTimer(${index})">
@@ -628,7 +628,7 @@ function updateRunningTask() {
     <p style="font-weight: bold; color: green;">Running Task ⏱</p>
     <strong>${runningTask.name}</strong>
     <p>${runningTask.description}</p>
-    <p><strong>Time:</strong> <span>${formatTime(runningDuration)}</span></p>
+    <p><strong>Timer ⏱ :</strong> <span>${formatTime(runningDuration)}</span></p>
   `;
 }
 
@@ -646,104 +646,196 @@ function weeklyStatus() {
 
 
 
-let statusChart = null;
+// let statusChart = null;
 
-function renderStatusChart() {
-  const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+// function renderStatusChart() {
+//   const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
-  const today = new Date().toISOString().split('T')[0];
+//   const today = new Date().toISOString().split('T')[0];
 
-  const todaysTasks = tasks.filter(task => task.created === today && task.totalSeconds > 0);
+//   const todaysTasks = tasks.filter(task => task.created === today && task.totalSeconds > 0);
 
-  console.log("Today's Tasks:", todaysTasks);
+//   console.log("Today's Tasks:", todaysTasks);
 
-  const labels = todaysTasks.map(task => task.name);
-  const durations = todaysTasks.map(task => {
-    let totalSeconds = task.totalSeconds || 0;
+//   const labels = todaysTasks.map(task => task.name);
+//   const durations = todaysTasks.map(task => {
+//     let totalSeconds = task.totalSeconds || 0;
 
-    if (task.startTime) {
-      const now = new Date();
-      const startTime = new Date(task.startTime);
-      totalSeconds += Math.floor((now - startTime) / 1000);
-    }
+//     if (task.startTime) {
+//       const now = new Date();
+//       const startTime = new Date(task.startTime);
+//       totalSeconds += Math.floor((now - startTime) / 1000);
+//     }
 
-    return totalSeconds / 60; 
-  });
+//     return totalSeconds / 60; 
+//   });
 
-  console.log("Task Labels:", labels);
-  console.log("Durations:", durations);
+//   console.log("Task Labels:", labels);
+//   console.log("Durations:", durations);
 
-  const chartMessage = document.getElementById('chart-message');
-  const chartCanvas = document.getElementById('status-chart');
+//   const chartMessage = document.getElementById('chart-message');
+//   const chartCanvas = document.getElementById('status-chart');
 
 
-  if (labels.length === 0 || durations.length === 0) {
-    chartMessage.textContent = 'No tasks to display for today.';
-    chartCanvas.style.display = 'none';   
+//   if (labels.length === 0 || durations.length === 0) {
+//     chartMessage.textContent = 'No tasks to display for today.';
+//     chartCanvas.style.display = 'none';   
+//     return;
+//   } else {
+//     chartMessage.textContent = '';        
+//     chartCanvas.style.display = 'block';  
+//   }
+  
+  
+//   const maxDuration = Math.max(...durations, 360); 
+
+//   const ctx = document.getElementById('status-chart').getContext('2d');
+
+//   if (statusChart) statusChart.destroy();
+
+  
+//   statusChart = new Chart(ctx, {
+//     type: 'bar',
+//     data: {
+//       labels: labels,
+//       datasets: [{
+//         label: 'Task Duration (mins)', 
+//         data: durations,
+//         backgroundColor: '#1b1fec', 
+//       }]
+//     },
+//     options: {
+//       responsive: true,
+//       plugins: {
+//         legend: { display: false },
+//         title: { display: true, text: 'Task Duration for Today' },
+//         tooltip: {
+//           callbacks: {
+//             label: function(tooltipItem) {
+//               const minutes = tooltipItem.raw;
+//               const hours = Math.floor(minutes / 60);
+//               const mins = Math.floor(minutes % 60);
+//               return `${hours > 0 ? hours + 'hr ' : ''}${mins > 0 ? mins + 'm' : '0m'}`;
+//             }
+//           }
+//         }
+//       },
+//       scales: {
+//         x: {
+//           title: { display: true,  text: 'Task Name' },
+//         },
+//         y: {
+//           beginAtZero: true,
+//           max: maxDuration, 
+//           title: { display: true, text: 'Duration' },
+//           ticks: {
+//             stepSize: 60, 
+//             callback: function(value) {
+//               const hours = Math.floor(value / 60);
+//               if (hours > 0) {
+//                 return `${hours}hr`; 
+//               } else {
+//                 return `${value}m`; 
+//               }
+//             }
+//           }
+//         }
+//       }
+//     }
+//   });
+// }
+
+
+
+function renderStatusChart(){
+   const container = document.getElementById("task-graph");
+
+   container.innerHTML = "";
+
+   const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+   const today = new Date().toISOString().split('T')[0];
+
+   const dailyTasks = tasks.filter(task => {
+    const isToday = task.created === today;
+    const hasDuration = task.totalSeconds > 0 || task.startTime;
+    return isToday && hasDuration;
+   });
+
+  if(dailyTasks.length === 0){
+    container.innerHTML = "<p>No tasks available for today.</p>"
     return;
-  } else {
-    chartMessage.textContent = '';        
-    chartCanvas.style.display = 'block';  
   }
-  
-  
-  const maxDuration = Math.max(...durations, 360); 
 
-  const ctx = document.getElementById('status-chart').getContext('2d');
-
-  if (statusChart) statusChart.destroy();
-
-  
-  statusChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: labels,
-      datasets: [{
-        label: 'Task Duration (mins)', 
-        data: durations,
-        backgroundColor: '#1b1fec', 
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { display: false },
-        title: { display: true, text: 'Task Duration for Today' },
-        tooltip: {
-          callbacks: {
-            label: function(tooltipItem) {
-              const minutes = tooltipItem.raw;
-              const hours = Math.floor(minutes / 60);
-              const mins = Math.floor(minutes % 60);
-              return `${hours > 0 ? hours + 'hr ' : ''}${mins > 0 ? mins + 'm' : '0m'}`;
-            }
-          }
-        }
-      },
-      scales: {
-        x: {
-          title: { display: true,  text: 'Task Name' },
-        },
-        y: {
-          beginAtZero: true,
-          max: maxDuration, 
-          title: { display: true, text: 'Duration' },
-          ticks: {
-            stepSize: 60, 
-            callback: function(value) {
-              const hours = Math.floor(value / 60);
-              if (hours > 0) {
-                return `${hours}hr`; 
-              } else {
-                return `${value}m`; 
-              }
-            }
-          }
-        }
-      }
+  const durations = dailyTasks.map(task => {
+    let totalSeconds = task.totalSeconds || 0;
+    if (task.startTime){
+      const now = new Date();
+      totalSeconds += Math.floor((now - new Date(task.startTime)) / 1000);
     }
+    return totalSeconds / 60;
   });
+  
+
+  const maxDuration = 480;
+  const step = 60;
+
+  const grid = document.createElement("div");
+  grid.className = "grid-container";
+
+  const yAxisContainer = document.createElement("div");
+  yAxisContainer.className = "y-axis"
+
+  for (let i = maxDuration / step; i >= 0; i--){
+    const yLabel = document.createElement("div");
+    yLabel.className = "y-label";
+
+    const timeInMinutes = i * step;
+    if(timeInMinutes === 0){
+      yLabel.textContent = "0m";
+      yLabel.classList.add("zero");
+    }else if (timeInMinutes % 60 === 0){
+      yLabel.textContent = `${timeInMinutes / 60}hr`
+      yLabel.classList.remove("zero")
+    }else{
+      yLabel.textContent = `${timeInMinutes}m`
+      yLabel.classList.remove("")
+    }
+
+    yAxisContainer.appendChild(yLabel);
+  }
+
+  const barsContainer = document.createElement("div")
+  barsContainer.className = "bars-container";
+
+  dailyTasks.forEach((task,index) => {
+    const barContainer = document.createElement("div");
+    barContainer.className = "bar-container";
+
+    const bar = document.createElement("div")
+    bar.className = "bar";
+    const barHeight = (durations[index] / maxDuration) * 100
+    bar.style.height = `${barHeight}%`;
+
+    bar.style.background = "#1b1fec";
+
+    const taskLabel = document.createElement("div");
+    taskLabel.className = "task-label";
+    taskLabel.textContent = task.name;
+
+    
+    // barContainer.appendChild(bar);
+    barContainer.appendChild(taskLabel)
+    barContainer.appendChild(bar);
+    barsContainer.appendChild(barContainer)
+  });
+
+  grid.appendChild(yAxisContainer)
+  grid.appendChild(barsContainer);
+  container.appendChild(grid)
 }
+
+
 
 
 function renderWeeklyChart() {
