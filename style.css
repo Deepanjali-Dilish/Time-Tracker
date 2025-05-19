@@ -7,13 +7,94 @@
 
 body, html{
   height: 100%;
-  background: #f5f9fc;
+  background-color: #4ba3d3;
   margin: 0;
 }
 
 body{
   display: flex;
   flex-direction: column;
+}
+
+
+.login-box {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 40px 30px;
+  border-radius: 20px;
+  width: 315px;
+  backdrop-filter: blur(5px);
+  box-sizing: border-box;
+  text-align: center;
+  margin: auto;
+}
+
+
+.login-logo {
+  font-size: 24px;
+  margin-bottom: 25px;
+  color: white;
+}
+
+.clock-log {
+  color: white;
+}
+
+input[type="email"],
+input[type="text"],
+input[type="password"]{
+  width: 100%;
+  padding: 12px 10px;
+  margin: 8px 0;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box;
+  font-size: 14px;
+}
+
+input::placeholder{
+  color: #4ba3d3;
+}
+
+.show{
+  color: white;
+}
+
+.btn {
+  background-color: #4e54c8;
+  color: white;
+  padding: 12px;
+  width: 81%;
+  border: none;
+  border-radius: 31px;
+  font-size: 15px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.btn:hover {
+  background-color: #3c3fc4;
+}
+
+.signup-text,
+.forgot-link {
+  display: block;
+  margin-top: 12px;
+  font-size: 14px;
+  color: white;
+}
+
+.signup-text a{
+  color: white;
+}
+
+.forgot-link {
+  color: white;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.forgot-link:hover {
+  text-decoration: underline;
 }
 
 .top-bar{
@@ -91,8 +172,9 @@ body{
 
 .main-content{
   flex-grow: 1;
-  padding: 45px;
+  padding: 35px;
   overflow-y: auto;
+  background-color: #f5f9fc;
 }
 
 main.main-content{
@@ -151,17 +233,9 @@ main.main-content{
   box-shadow: 0 0 0 2px rgba(90, 79, 243, 0.2);
 }
 
-
-/* #add-task-section {
-    background: white;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    max-width: 600px;
-    margin: 0 auto;
-  } */
-  
-  
+#task-name::placeholder{
+  color: grey;
+}
 
 .title{
   font-size: 22px;
@@ -196,13 +270,23 @@ main.main-content{
   font-weight: bold;
 }
 
+#total-all{
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+#running-task{
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
 #recent-tasks ul {
   list-style: none;
   padding: 0;
 }
 
 #recent-tasks li {
-  margin: 5px 0;
+  margin: 15px 0;
   padding: 5px 10px;
   background: #d6d6d6;
   border-radius: 6px;
@@ -277,11 +361,62 @@ button.styled-btn{
   flex-direction: row-reverse;
 }
 
-.clock{
-  color: white;
+#completed-tasks-list{
+  list-style: none;
+  padding: 0;
 }
 
-#task-graph{
+#completed-tasks-list li{
+  margin: 15px 0;
+  padding: 5px 10px;
+  background: #d6d6d6;
+  border-radius: 6px;
+}
+
+.same{
+  margin: 8px 0px 8px 4px;
+}
+
+.big-checkbox {
+  width: 14px;  
+  height: 14px;
+  transform: scale(1.5);  
+  margin-right: 8px;
+  cursor: pointer;
+}
+
+#user-tasks-section h3{
+  margin-bottom: 10px;
+}
+
+#settings-section h3{
+  margin-bottom: 10px;
+}
+
+.gap{
+  margin: 10px 0px 10px 0px;
+}
+
+#daily-tasks,
+#userTasks,
+#status,
+#week,
+#settings {
+  display: none;
+}
+
+.login-box input:focus{
+  outline: none;
+  border: 2px solid #0c6ca0;
+}
+
+.tasks{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+/* #task-graph{
   display: flex;
   justify-content: center;
   margin-top: 20px;
@@ -350,7 +485,8 @@ button.styled-btn{
 
 .zero {
   margin-bottom: 0;
-}
+} */
+
 
 /* .bar-container {
   display: flex;
@@ -377,6 +513,7 @@ button.styled-btn{
   color: #333;
   transform: translateY(25px);
 } */
+/* Default hidden (for mobile) */
 
 
 @media (min-width: 768px) {
@@ -426,6 +563,22 @@ button.styled-btn{
   #add-task-section input[type="text"],
   #add-task-section textarea{
     margin-bottom: 35px;
+  }
+
+  .login-box{
+    width: 450px;
+  }
+
+  #daily-tasks,
+  #userTasks,
+  #status,
+  #week,
+  #settings {
+    display: block;
+  }
+
+  #arrow{
+    display: none;
   }
 
   .top-bar{
@@ -483,15 +636,30 @@ button.styled-btn{
     font-size: 18px;
   }
 
+  #total-all{
+    font-size: 18px;
+  }
+
+  #running-task{
+    font-size: 18px;
+  }
+
   .title-recent{
     font-size: 18px;
   }
 
   #recent-tasks li{
-    margin-top: 7px;
-    margin-bottom: 7px;
+    margin: 15px 0;
     padding-top: 7px;
     padding-bottom: 7px;
+    /* width: 400px; */
+  }
+
+  #completed-tasks-list li{
+    margin: 15px 0;
+    padding-top: 7px;
+    padding-bottom: 7px;
+    /* width: 400px; */
   }
 
   .side-title li{

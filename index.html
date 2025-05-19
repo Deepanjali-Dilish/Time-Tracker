@@ -6,22 +6,47 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
   <link rel="stylesheet" href="style.css" />
-  <title>Time Tracker</title>
+  <title>Time Tracker</title> 
 </head>
 <body>
 
-  <div class="top-bar">
+  <div class="top-bar" style="display: none;">
     <h1 class="title">TRACKTIME<span class="clock"> ⏱ </span></h1>
     <button id="login-btn" onclick="toggleLoginForm()">Login</button>
   </div>
-
-  <div id="login-form" class="login-popup" style="display: none;">
-    <input type="email" id="email" placeholder="Email" required />
-    <input type="password" id="password" placeholder="password" required />
-    <button onclick="login()">Login</button>
+  
+  <!-- signup form -->
+  <div id="signup-container" class="login-box" style="display: none;">
+    <h2 class="login-logo">TrackTime<span class="clock-log"> ⏱ </span></h2>
+    <input type="text" id="signup-username" placeholder="Username" required />
+    <input type="email" id="signup-email" placeholder="E-mail" required />
+    <input type="password" id="signup-password" placeholder="Password" required />
+    <input type="password" id="signup-confirm-password" placeholder="Confirm Password" required />
+    <div class="same">
+      <input type="checkbox" id="signup-show-password-checkbox" class="big-checkbox" onclick="togglePasswordVisibility('signup')">
+      <label for="signup-show-password-checkbox" class="show">Show Password</label>
+    </div>
+    <button onclick="signup()" class="btn">CREATE ACCOUNT</button>
+    <p class="signup-text">Already have an account? <a href="#" onclick="showLogin()">Login here</a></p>
   </div>
 
-  <div id="dashboard-section">
+  <!-- Login Form -->
+  <div id="login-container" class="login-box">
+    <h2 class="login-logo">TrackTime<span class="clock-log"> ⏱ </span></h2>
+    <input type="email" id="login-email" placeholder="E-mail" required />
+    <input type="password" id="login-password" placeholder="Password" required />
+    <div class="same">
+      <input type="checkbox" id="login-show-password-checkbox" class="big-checkbox" onclick="togglePasswordVisibility('login')">
+      <label for="login-show-password-checkbox" class="show">Show Password</label>  
+    </div>
+    <button onclick="login()" class="btn">LOGIN</button>
+    <p class="signup-text">Don't have an account? <a href="#" onclick="showSignup()">Sign up here</a></p>
+    <div class="forgot">
+      <p class="forgot-link"onclick="forgotPassword()">Forgot password</p>
+    </div>
+  </div>
+  
+  <div id="dashboard-section" style="display: none;">
     <aside class="sidebar">
       <h2 class="sub-title">TRACK</h2>
       <ul class="side-title">
@@ -35,6 +60,7 @@
         <li id="status" onclick="showStatus()">Daily Status</li>
         <li id="week" onclick="weeklyStatus()">Weekly Status</li>
         <li id="userTasks" onclick="showUser()">User</li>
+        <li id="settings" onclick="showSettings()">Settings</li>
       </ul>
     </aside>
 
@@ -58,39 +84,37 @@
       <div id="summary-section">
         <div id="running-task" class="summary-box">No task is currently running</div>
         <div id="total-time" class="summary-box"></div>
+        <div id="total-all" class="summary-box"></div>
+        <div id="completed-tasks-section" class="summary-box">
+          <h3>Completed Tasks</h3>
+          <ul id="completed-tasks-list"></ul>
+        </div>
         <div id="recent-tasks" class="summary-box">
           <h3 class="title-recent" id="recent">Recent Tasks</h3>
           <ul id="recent-tasks-list"></ul>
         </div>
-
+        
       </div>
-<!-- 
-       <section id="status-section" style="display:none;">
-        <h2>Daily Status Overview</h2>
-        <canvas id="status-chart" width="300" height="250"></canvas>
-        <div id="chart-message" style="color: red; font-size: 14px;"></div>
-      </section> -->
-
-      <div id="task-graph" class="bar-graph">
-          <h2>Daily Status Overview</h2>
-      </div>
-
-      <section id="weekly-status-section" style="display: none;">
-        <h2>Weekly Status Overview</h2>
-        <canvas id="weekly-chart" width="300" height="250" style="max-width: 100%;"></canvas>
-        <div id="weekly-chart-message" style="color: red; font-size: 14px;"></div>
-      </section>
 
       <div id="user-tasks-section" style="display: none;">
-        <h3>User's Tasks</h3>
+        <h3>User's Tasks Detials</h3>
 
         <div id="user-tasks-list"></div>
       </div>
+
+      <div id="settings-section"  class="summary-box" style="display:none">
+        <h3>Account Settings</h3>
+        <div id="user-name" class="gap"></div>
+        <div id="user-email" class="gap"></div>
+        <button class="styled-btn delete-btn" onclick="deleteAccount()">Delete Account</button>
+      </div>
+      
+      
      
     </main>
   </div>
 
-  <footer class="footer">
+  <footer class="footer" style="display: none;">
       <div class="footer-left"> 
         © TrackTime 2025
       </div>
