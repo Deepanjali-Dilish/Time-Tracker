@@ -991,7 +991,7 @@ function showStatus() {
 
 
 function createTaskDurationGraph(tasks) {
-  const slotDuration = 3600; // 1 hour in seconds
+  const slotDuration = 3600; 
   const defaultHours = 5;
 
   const today = new Date().toISOString().split("T")[0];
@@ -1037,7 +1037,7 @@ function createTaskDurationGraph(tasks) {
       }
     });
 
-    return totalSeconds / slotDuration; // hours
+    return totalSeconds / slotDuration; 
   });
 
   const maxDuration = Math.max(...taskDurations, defaultHours);
@@ -1052,7 +1052,7 @@ function createTaskDurationGraph(tasks) {
   wrapper.style.gap = "0";
   wrapper.style.marginTop ="15px"
 
-  // Y-axis (hours)
+  
   const yAxis = document.createElement("div");
   yAxis.style.display = "flex";
   yAxis.style.flexDirection = "column";
@@ -1061,21 +1061,26 @@ function createTaskDurationGraph(tasks) {
   yAxis.style.boxSizing = "border-box";
   yAxis.style.paddingTop = "2px";
 
-  for (let i = maxY; i >= 1; i--) {
+  for (let i = maxY; i >= 0; i--) {
     const label = document.createElement("div");
-    label.className = 'hour-space';
+    label.className = 'hour-space'
     label.textContent = `${i} hr`;
-    label.style.flex = "1";
+    label.style.height = "0";
+    label.style.lineHeight = "0";
+    label.style.transform = "translateY(-50%)";
+    label.style.position = "relative";
+    label.style.top = "0";
+    label.style.fontSize = "clamp(10px, 1vw, 14px)";
     label.style.display = "flex";
     label.style.alignItems = "center";
     label.style.justifyContent = "flex-end";
-    label.style.fontSize = "clamp(10px, 1vw, 14px)";
     yAxis.appendChild(label);
   }
+  
 
-  // Grid
+  
   const grid = document.createElement("div");
-  grid.className = "grid-gap"
+  grid.className = "grid-gap";
   grid.style.display = "grid";
   grid.style.gridTemplateColumns = `repeat(${maxX}, minmax(0, 1fr))`;
   grid.style.gridTemplateRows = `repeat(${maxY}, 1fr)`;
@@ -1089,7 +1094,7 @@ function createTaskDurationGraph(tasks) {
   for (let row = 0; row < maxY; row++) {
     for (let col = 0; col < maxX; col++) {
       const cell = document.createElement("div");
-      cell.style.border = "1px solid #ccc"; // Light blue
+      cell.style.border = "1px solid #ccc"; 
       cell.style.boxSizing = "border-box";
       cell.style.position = "relative";
       cell.style.backgroundColor = "#fff";
@@ -1140,7 +1145,7 @@ function createTaskDurationGraph(tasks) {
   wrapper.appendChild(yAxis);
   wrapper.appendChild(grid);
 
-  // Y-axis unit label ("cm")
+  
   const yUnit = document.createElement("div");
   yUnit.className = "yContent"
   yUnit.textContent = "Duration(hr)";
@@ -1155,7 +1160,7 @@ function createTaskDurationGraph(tasks) {
 
   graphContainer.appendChild(wrapper);
 
-  // X-axis task labels
+
   const xLabels = document.createElement("div");
   xLabels.className = 'taskx';
   xLabels.style.display = "grid";
@@ -1176,7 +1181,7 @@ function createTaskDurationGraph(tasks) {
 
   graphContainer.appendChild(xLabels);
 
-  // X-axis unit label ("Month")
+
   const xUnit = document.createElement("div");
   xUnit.textContent = "Task Name";
   xUnit.style.textAlign = "center";
