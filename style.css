@@ -416,105 +416,39 @@ button.styled-btn{
   gap: 5px;
 }
 
-/* #task-graph{
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
-}
-
-
-.grid-container {
-  display: flex;
-  justify-content: flex-start;
-  align-items: flex-end; 
-  width: 80%;
-  position: relative;
-  border-left: 1px solid  #9c9999;
-  border-bottom: 1px solid #9c9999;
-  height: 300px;
-}
-
-
-.y-axis{
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: flex-end;
-  width: 60px;
-  transform: translateX(-37px);
-}
-
-.y-label{
-  font-size: 14px;
-  color: #333;
-  margin-bottom: 20px;
-}
-
-.bars-container {
-  display: flex;
-  align-items: flex-end; 
-  height: 100%;           
+#grid-container {
+  display: grid;
+  gap: 2px;
+  border: 1px solid #ccc;
+  overflow-x: auto;
   width: 100%;
+  max-width: 100%;
 }
 
-.bar-container {
+.cell {
+  height: 30px;
+  border: 1px solid #ddd;
+  box-sizing: border-box;
+}
+
+.task-duration-grid > div {
   display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
   align-items: center;
-  width: 60px;
-  height: 100%;
-  position: relative;
+  justify-content: center;
 }
 
-.bar {
-  width: 40px;
-  background-color: #1b1fec;
-  transition: height 0.3s ease;
-  transform-origin: bottom;
+.hour-space{
+  padding-right: 4px;
 }
 
-.task-label {
-  margin-bottom: 5px; 
-  font-size: 14px;
-  color: #333;
-  text-align: center;
-  transform: translateY(37px);
+.yContent{
+  left: -20px;
+  top: 258px;
 }
 
-
-.zero {
-  margin-bottom: 0;
-} */
-
-
-/* .bar-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;  
-  align-items: center;
-  width: 60px;
-  height: 100%;
+.grid-gap{
+  column-gap: 7px;
 }
-
-
-.bar {
-  width: 40px;
-  background-color: #4caf50;
-  transition: height 0.3s ease;
-}
-
-
-
-.task-label{
-  margin-top: 5px;
-  text-align: center;
-  font-size: 14px;
-  color: #333;
-  transform: translateY(25px);
-} */
-/* Default hidden (for mobile) */
-
 
 @media (min-width: 768px) {
 
@@ -586,8 +520,15 @@ button.styled-btn{
     padding-right: 20px;
   }
 
-  .y-axis{
-    transform: translateX(-70px);
+  .hour-space{
+    padding-right: 8px;
+  }
+  .yContent{
+    top: 176px;
+  }
+
+  .grid-gap{
+    column-gap: 12px;
   }
 }
 
@@ -684,4 +625,12 @@ button.styled-btn{
     font-size: 20px;
   }
   
+  .yContent{
+    top: 434px;
+  }
+
+  .grid-gap{
+     column-gap: 25px;
+  }
 }
+

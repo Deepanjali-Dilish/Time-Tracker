@@ -4,14 +4,6 @@ let startTime = null;
 let runningTaskInterval = null;
 let viewMode = showDashboard;
 
-function toggleLoginForm(forceShow = null) {
-  const form = document.getElementById("login-container");
-  form.style.display = 
-    forceShow === true ? "block" :
-    forceShow === false ? "none" :
-    form.style.display === "none" ? "block" : "none";
-}
-
 
 function showDashboard() {
   viewMode = "dashboard";
@@ -37,7 +29,7 @@ function displaySections(sectionName) {
   document.getElementById("summary-section").style.display = "none";
   document.getElementById("user-tasks-section").style.display = "none";
   document.getElementById("settings-section").style.display = "none";
- // document.getElementById("task-graph").style.display = "none"
+  document.getElementById("graph-container").style.display = "none"
  // document.getElementById("weekly-status-section").style.display = "none"
 
   switch (sectionName) {
@@ -56,7 +48,10 @@ function displaySections(sectionName) {
     case "daily":
       document.getElementById("tasks-section").style.display = "block";  
       break;
-      case "settings":
+    case "status":
+      document.getElementById("graph-container").style.display = "block"
+      break;
+    case "settings":
         document.getElementById("settings-section").style.display = "block";  
         break;
     
@@ -159,7 +154,7 @@ function loadTasks() {
   const totalSecond = tasks.reduce((sum, task) => sum + calculateDuration(task), 0);
 
 
-  document.getElementById("total-all").innerText = `Total time tracked for all tasks: ${formatTime(totalSecond)}`;
+  document.getElementById("total-all").innerText = `Total time tracked of all tasks: ${formatTime(totalSecond)}`;
 
 
   const today = new Date().toISOString().split("T")[0];
@@ -374,10 +369,16 @@ function showDailyTasks() {
   console.log('All Tasks from LocalStorage:', tasks);
   console.log('Today\'s Date:', today);
 
+  // const dailyTasks = tasks.filter(task => {
+  //   console.log('Comparing:', task.created, 'with', today);
+  //   return task.created === today;
+  // });
+
   const dailyTasks = tasks.filter(task => {
-    console.log('Comparing:', task.created, 'with', today);
-    return task.created === today;
+    if (!task.created) return false;
+    return task.created.split('T')[0] === today;
   });
+  
 
   console.log('Filtered Daily Tasks:', dailyTasks);
 
@@ -707,11 +708,12 @@ function forgotPassword() {
   }
 }
 
-function showStatus() {
-  viewMode = "status";
-  displaySections("status");
-  renderStatusChart(); 
-}
+// function showStatus() {
+//   viewMode = "status";
+//   displaySections("status");
+//   createTaskDurationGraph(tasks) ; 
+// }
+
 
 function weeklyStatus() {
   viewMode = "week";
@@ -972,3 +974,213 @@ function togglePasswordVisibility(form) {
 }
 
 
+function showStatus() {
+  viewMode = "status";
+  displaySections("status");
+
+  const allTasks = JSON.parse(localStorage.getItem("userTasks")) || {};
+  const user = JSON.parse(localStorage.getItem("loggedInUser"));
+  const tasks = (allTasks && user && allTasks[user.email]) || [];
+  createTaskDurationGraph(tasks);
+  
+
+
+}
+
+
+
+
+function createTaskDurationGraph(tasks) {
+  const slotDuration = 3600; // 1 hour in seconds
+  const defaultHours = 5;
+
+  const today = new Date().toISOString().split("T")[0];
+  const startOfToday = new Date(today + "T00:00:00");
+  const endOfToday = new Date(today + "T23:59:59.999");
+
+  const todayTasks = tasks.filter(task => {
+    const sessions = task.sessions || [];
+    return sessions.some(session => {
+      if (!session.start) return false;
+      const start = new Date(session.start);
+      const end = session.end ? new Date(session.end) : new Date();
+      return end >= startOfToday && start <= endOfToday;
+    });
+  });
+
+  const graphContainer = document.getElementById("graph-container");
+  if (!graphContainer) return;
+  graphContainer.innerHTML = "";
+  graphContainer.style.position = "relative"
+
+  const heading = document.createElement("h3");
+  heading.textContent = "Today's Task Duration Graph";
+  graphContainer.appendChild(heading);
+
+  if (todayTasks.length === 0) {
+    graphContainer.innerHTML += "<p>No tasks performed today.</p>";
+    return;
+  }
+
+  const taskDurations = todayTasks.map(task => {
+    const sessions = task.sessions || [];
+    let totalSeconds = 0;
+
+    sessions.forEach(session => {
+      if (!session.start) return;
+      const start = new Date(session.start);
+      const end = session.end ? new Date(session.end) : new Date();
+      const sessionStart = start < startOfToday ? startOfToday : start;
+      const sessionEnd = end > endOfToday ? endOfToday : end;
+      if (sessionEnd > sessionStart) {
+        totalSeconds += (sessionEnd - sessionStart) / 1000;
+      }
+    });
+
+    return totalSeconds / slotDuration; // hours
+  });
+
+  const maxDuration = Math.max(...taskDurations, defaultHours);
+  const maxY = Math.ceil(maxDuration);
+  const maxX = todayTasks.length;
+
+  const wrapper = document.createElement("div");
+  wrapper.style.display = "grid";
+  wrapper.style.gridTemplateColumns = `36px 1fr`;
+  wrapper.style.width = "100%";
+  wrapper.style.alignItems = "stretch";
+  wrapper.style.gap = "0";
+  wrapper.style.marginTop ="15px"
+
+  // Y-axis (hours)
+  const yAxis = document.createElement("div");
+  yAxis.style.display = "flex";
+  yAxis.style.flexDirection = "column";
+  yAxis.style.justifyContent = "space-between";
+  yAxis.style.height = "100%";
+  yAxis.style.boxSizing = "border-box";
+  yAxis.style.paddingTop = "2px";
+
+  for (let i = maxY; i >= 1; i--) {
+    const label = document.createElement("div");
+    label.className = 'hour-space';
+    label.textContent = `${i} hr`;
+    label.style.flex = "1";
+    label.style.display = "flex";
+    label.style.alignItems = "center";
+    label.style.justifyContent = "flex-end";
+    label.style.fontSize = "clamp(10px, 1vw, 14px)";
+    yAxis.appendChild(label);
+  }
+
+  // Grid
+  const grid = document.createElement("div");
+  grid.className = "grid-gap"
+  grid.style.display = "grid";
+  grid.style.gridTemplateColumns = `repeat(${maxX}, minmax(0, 1fr))`;
+  grid.style.gridTemplateRows = `repeat(${maxY}, 1fr)`;
+  grid.style.width = "100%";
+  grid.style.aspectRatio = `${maxX} / ${maxY}`;
+  grid.style.position = "relative";
+  grid.style.backgroundColor = "#fff";
+  grid.style.borderLeft = "2px solid #ccc";
+  grid.style.borderBottom = "2px solid #ccc";
+  
+  for (let row = 0; row < maxY; row++) {
+    for (let col = 0; col < maxX; col++) {
+      const cell = document.createElement("div");
+      cell.style.border = "1px solid #ccc"; // Light blue
+      cell.style.boxSizing = "border-box";
+      cell.style.position = "relative";
+      cell.style.backgroundColor = "#fff";
+
+      const taskDuration = taskDurations[col] || 0;
+      const currentHour = maxY - row;
+      const lowerBound = currentHour - 1;
+
+      let fillFraction = 0;
+      if (taskDuration > lowerBound) {
+        fillFraction = Math.min(taskDuration - lowerBound, 1);
+        if (fillFraction < 0) fillFraction = 0;
+        if (fillFraction > 1) fillFraction = 1;
+      }
+
+      if (fillFraction > 0) {
+        const fillDiv = document.createElement("div");
+        fillDiv.style.position = "absolute";
+        fillDiv.style.bottom = "0";
+        fillDiv.style.left = "0";
+        fillDiv.style.width = "100%";
+        fillDiv.style.height = `${fillFraction * 100}%`;
+        fillDiv.style.backgroundColor = "#1b1fec"
+        fillDiv.style.transition = "height 0.3s ease";
+        fillDiv.style.cursor = 'pointer';
+        fillDiv.title = formatTime(fillFraction * slotDuration);
+        cell.appendChild(fillDiv);
+
+        if (row === maxY - Math.ceil(taskDuration)) {
+          const label = document.createElement("div");
+          //label.textContent = `${taskDuration.toFixed(2)} hr`;
+          label.style.position = "absolute";
+          label.style.top = "50%";
+          label.style.left = "50%";
+          label.style.transform = "translate(-50%, -50%)";
+          label.style.color = "black";
+          label.style.fontSize = "clamp(10px, 1vw, 12px)";
+          label.style.fontWeight = "bold";
+          label.style.pointerEvents = "none";
+          cell.appendChild(label);
+        }
+      }
+
+      grid.appendChild(cell);
+    }
+  }
+
+  wrapper.appendChild(yAxis);
+  wrapper.appendChild(grid);
+
+  // Y-axis unit label ("cm")
+  const yUnit = document.createElement("div");
+  yUnit.className = "yContent"
+  yUnit.textContent = "Duration(hr)";
+  yUnit.style.position = "absolute";
+  yUnit.style.transform = "rotate(-90deg)";
+  yUnit.style.transformOrigin = "left top";
+  yUnit.style.textAlign = "center"
+  // yUnit.style.left = "-20px";
+  // yUnit.style.top = "100px";
+  yUnit.style.fontSize = "clamp(10px, 1vw, 14px)";
+  graphContainer.appendChild(yUnit);
+
+  graphContainer.appendChild(wrapper);
+
+  // X-axis task labels
+  const xLabels = document.createElement("div");
+  xLabels.className = 'taskx';
+  xLabels.style.display = "grid";
+  xLabels.style.gridTemplateColumns = `repeat(${maxX}, minmax(0, 1fr))`;
+  xLabels.style.marginTop = "5px";
+  xLabels.style.marginLeft = "36px";
+
+  todayTasks.forEach(task => {
+    const label = document.createElement("div");
+    label.textContent = task.name || "Task";
+    label.style.textAlign = "center";
+    label.style.fontSize = "clamp(10px, 1vw, 14px)";
+    label.style.overflow = "hidden";
+    label.style.textOverflow = "ellipsis";
+    label.style.whiteSpace = "nowrap";
+    xLabels.appendChild(label);
+  });
+
+  graphContainer.appendChild(xLabels);
+
+  // X-axis unit label ("Month")
+  const xUnit = document.createElement("div");
+  xUnit.textContent = "Task Name";
+  xUnit.style.textAlign = "center";
+  xUnit.style.fontSize = "clamp(10px, 1vw, 14px)";
+  xUnit.style.marginTop = "15px";
+  graphContainer.appendChild(xUnit);
+}
