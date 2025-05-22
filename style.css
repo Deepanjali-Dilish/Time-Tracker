@@ -443,11 +443,15 @@ button.styled-btn{
 
 .yContent{
   left: -20px;
-  top: 258px;
+  top: 187px;
 }
 
 .grid-gap{
   column-gap: 7px;
+}
+
+.no-space{
+  margin-top: 15px;
 }
 
 @media (min-width: 768px) {
@@ -528,7 +532,7 @@ button.styled-btn{
   }
 
   .grid-gap{
-    column-gap: 12px;
+    column-gap: 18px;
   }
 }
 
@@ -630,7 +634,7 @@ button.styled-btn{
   }
 
   .grid-gap{
-     column-gap: 25px;
+     column-gap: 40px;
   }
 }
 
