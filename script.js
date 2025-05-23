@@ -26,11 +26,13 @@ function showTasks() {
 function displaySections(sectionName) {
   document.getElementById("add-task-section").style.display = "none";
   document.getElementById("tasks-section").style.display = "none";
+ // document.getElementById("search-task-container").style.display = "none";
   document.getElementById("summary-section").style.display = "none";
   document.getElementById("user-tasks-section").style.display = "none";
   document.getElementById("settings-section").style.display = "none";
-  document.getElementById("graph-container").style.display = "none"
-  document.getElementById("week-container").style.display = "none"
+  document.getElementById("graph-container").style.display = "none";
+  document.getElementById("week-container").style.display = "none";
+ 
 
   switch (sectionName) {
     case "summary":
@@ -42,6 +44,8 @@ function displaySections(sectionName) {
     case "tasks":
       document.getElementById("tasks-section").style.display = "block";
       break;
+
+     
     case "user":
       document.getElementById("user-tasks-section").style.display = "block";
       break;
@@ -339,6 +343,7 @@ function formatTime(totalSeconds) {
 
 
 function toggleSubmenu() {
+  
   if (window.innerWidth >= 768) return;
 
   const dailyTasks = document.getElementById("daily-tasks");
@@ -346,6 +351,7 @@ function toggleSubmenu() {
   const status = document.getElementById("status");
   const week = document.getElementById("week");
   const settings = document.getElementById("settings");
+  const search = document.getElementById("search-tasks")
   const arrow = document.getElementById("arrow");
 
   const isVisible = dailyTasks.style.display === "block";
@@ -354,6 +360,7 @@ function toggleSubmenu() {
   status.style.display = isVisible ? "none" : "block";
   week.style.display = isVisible ? "none" : "block";
   settings.style.display = isVisible ? "none" : "block";
+  search.style.display = isVisible ? "none" : "block";
   arrow.innerHTML = isVisible ? "&#9662;" : "&#9650;";
 }
 
@@ -1206,6 +1213,7 @@ function weeklyStatus() {
 
   createWeeklyTaskDurationGraph(tasks); 
 }
+
 
 
 
