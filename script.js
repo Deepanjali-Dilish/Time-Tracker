@@ -76,6 +76,12 @@ function addTask() {
   if (!user || !user.email) return alert("User not logged in.");
 
   const allTasks = JSON.parse(localStorage.getItem("userTasks")) || {};
+  const userTasks = allTasks[user.email] || [];
+
+  const isDuplicate = userTasks.some(task => task.name.toLowerCase() === name.toLowerCase());
+  if (isDuplicate) {
+    return alert("Task name already exists. Choose a different name.");
+  }
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -90,15 +96,12 @@ function addTask() {
     sessions: []
   };
 
-  if (!allTasks[user.email]) {
-    allTasks[user.email] = [];
-  }
-
-  allTasks[user.email].push(newTask);
+  userTasks.push(newTask);
+  allTasks[user.email] = userTasks;
   localStorage.setItem("userTasks", JSON.stringify(allTasks));
 
   console.log('Task Added:', newTask);
-  console.log('Updated Task List for', user.email, allTasks[user.email]);
+  console.log('Updated Task List for', user.email, userTasks);
 
   document.getElementById("task-name").value = '';
   document.getElementById("task-description").value = '';
@@ -141,6 +144,7 @@ function showIndividualTotal(task) {
     console.error("Missing display element for:", taskId);
   }
 }
+
 
 function loadTasks() {
     const user = JSON.parse(localStorage.getItem("loggedInUser"));
@@ -204,7 +208,9 @@ function loadTasks() {
   
       completedTasks.forEach(task => {
         const li = document.createElement("li");
-        li.innerHTML = `<strong>${task.name}</strong> - ${formatTime(calculateDuration(task))}`;
+        //li.innerHTML = `<strong>${task.name}</strong> - ${formatTime(calculateDuration(task))}`;
+        li.innerHTML = `<a href="#" onclick="scrollToTask('${task.name}')"><strong style="color: black">${task.name}</strong></a> - ${formatTime(calculateDuration(task))}`;
+
         completedList.appendChild(li);
       });
   }
@@ -213,7 +219,9 @@ function loadTasks() {
   recentList.innerHTML = '';
   tasks.slice(-3).reverse().forEach(task => {
     const item = document.createElement("li");
-    item.textContent = task.name;
+    //item.textContent = task.name;
+    item.innerHTML = `<a href="#" onclick="scrollToTask('${task.name}')"><strong style="color: black">${task.name}</strong></a>`;
+
     recentList.appendChild(item);
   });``
 
@@ -224,6 +232,8 @@ function loadTasks() {
     const task = tasks[currentTaskIndex];
     const taskEl = document.createElement("div");
     taskEl.className = "task";
+    //taskEl.id = `task-${index}`;
+
     taskEl.innerHTML = `
       <strong>${task.name}</strong>
       <p><strong>Time:</strong> ${formatTime(calculateDuration(task))}</p>
@@ -513,12 +523,9 @@ function stopTaskTimer() {
   currentTaskIndex = null;
   
 
-  loadTasks();
-  updateRunningTask();
-
-  currentTaskIndex = null;
-
 }
+
+
 
 function updateTimerDisplay(index) {
   const user = JSON.parse(localStorage.getItem("loggedInUser"));
@@ -745,6 +752,8 @@ function showLogin() {
 
 
 window.onload = function () {
+   
+  
   const user = JSON.parse(localStorage.getItem("loggedInUser"));
   const loginBtn = document.getElementById("login-btn");
 
@@ -1214,186 +1223,260 @@ function weeklyStatus() {
   createWeeklyTaskDurationGraph(tasks); 
 }
 
-
-
-
 function createWeeklyTaskDurationGraph(tasks) {
-  const slotDuration = 3600; 
-  const defaultHours = 5;
-
   const weekContainer = document.getElementById("week-container");
   if (!weekContainer) return;
 
   weekContainer.innerHTML = "";
   weekContainer.style.position = "relative";
 
+  const headerWrapper = document.createElement("div");
+  headerWrapper.style.display = "flex";
+  headerWrapper.style.justifyContent = "space-between";
+  headerWrapper.style.alignItems = "center";
+  headerWrapper.style.marginBottom = "10px";
+
   const heading = document.createElement("h3");
   heading.textContent = "This Week's Task Duration Graph";
-  weekContainer.appendChild(heading);
+  heading.style.margin = "0";
 
-  const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-  const now = new Date();
-  const currentDay = now.getDay(); 
+  const buttonGroup = document.createElement("div");
+  buttonGroup.style.display = "flex";
+  buttonGroup.style.border = "1px solid #ccc";
+  buttonGroup.style.borderRadius = "5px";
+  buttonGroup.style.overflow = "hidden";
 
-  
-  const startOfWeek = new Date(now);
-  startOfWeek.setDate(now.getDate() - currentDay);
-  startOfWeek.setHours(0, 0, 0, 0);
+  const thisWeekBtn = document.createElement("button");
+  thisWeekBtn.className = "this"
+  thisWeekBtn.textContent = "This week";
+  thisWeekBtn.style.border = "none";
+  thisWeekBtn.style.cursor = "pointer";
+  thisWeekBtn.style.backgroundColor = "#007bff";
+  thisWeekBtn.style.color = "#fff";
+  thisWeekBtn.style.fontWeight = "bold";
 
-  
-  const dailyDurations = new Array(7).fill(0);
+  const lastWeekBtn = document.createElement("button");
+  lastWeekBtn.className = "last"
+  lastWeekBtn.textContent = "Last week";
+  lastWeekBtn.style.border = "none";
+  lastWeekBtn.style.cursor = "pointer";
+  lastWeekBtn.style.backgroundColor = "rgb(167 167 196)";
+  lastWeekBtn.style.color = "#fff";
 
-  tasks.forEach(task => {
-    (task.sessions || []).forEach(session => {
-      if (!session.start) return;
+  buttonGroup.appendChild(lastWeekBtn);
+  buttonGroup.appendChild(thisWeekBtn);
+  headerWrapper.appendChild(heading);
+  headerWrapper.appendChild(buttonGroup);
+  weekContainer.appendChild(headerWrapper);
 
-      const start = new Date(session.start);
-      const end = session.end ? new Date(session.end) : new Date();
-
-      for (let d = 0; d < 7; d++) {
-        const dayStart = new Date(startOfWeek);
-        dayStart.setDate(dayStart.getDate() + d);
-        const dayEnd = new Date(dayStart);
-        dayEnd.setHours(23, 59, 59, 999);
-
-        const sessionStart = start < dayStart ? dayStart : start;
-        const sessionEnd = end > dayEnd ? dayEnd : end;
-
-        if (sessionEnd > sessionStart) {
-          //dailyDurations[d] += (sessionEnd - sessionStart) / 1000; 
-          dailyDurations[d] += Math.floor((sessionEnd - sessionStart) / 1000);
-
-        }
+  function updateGraph(isLastWeek = false) {
+    
+    [...weekContainer.children].forEach(child => {
+      if (child !== headerWrapper) {
+        weekContainer.removeChild(child);
       }
     });
-  });
 
-  
-  const rotatedDurations = dailyDurations.slice(1).concat(dailyDurations[0]);
+    const slotDuration = 3600;
+    const defaultHours = 5;
+    const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-  
-  const dailyHours = rotatedDurations.map(sec => sec / slotDuration);
-  const maxDuration = Math.max(...dailyHours, defaultHours);
-  const maxY = Math.ceil(maxDuration);
+    const now = new Date();
+    const currentDay = now.getDay();
+    const startOfWeek = new Date(now);
 
-  const wrapper = document.createElement("div");
-  wrapper.style.display = "grid";
-  wrapper.style.gridTemplateColumns = `36px 1fr`;
-  wrapper.style.width = "100%";
-  wrapper.style.alignItems = "stretch";
-  wrapper.style.gap = "0";
-  wrapper.style.marginTop = "15px";
+    startOfWeek.setDate(startOfWeek.getDate() - currentDay - (isLastWeek ? 7 : 0));
+    startOfWeek.setHours(0, 0, 0, 0);
 
-  const yAxis = document.createElement("div");
-  yAxis.style.display = "flex";
-  yAxis.style.flexDirection = "column";
-  yAxis.style.justifyContent = "space-between";
-  yAxis.style.height = "100%";
-  yAxis.style.boxSizing = "border-box";
-  yAxis.style.paddingTop = "2px";
+    const dailyDurations = new Array(7).fill(0);
 
-  for (let i = maxY; i >= 0; i--) {
-    const label = document.createElement("div");
-    label.className = 'hour-space'
-    label.textContent = `${i} hr`;
-    label.style.height = "0";
-    label.style.lineHeight = "0";
-    label.style.transform = "translateY(-50%)";
-    label.style.position = "relative";
-    label.style.top = "0";
-    label.style.fontSize = "clamp(10px, 1vw, 14px)";
-    label.style.display = "flex";
-    label.style.alignItems = "center";
-    label.style.justifyContent = "flex-end";
-    yAxis.appendChild(label);
-  }
+    tasks.forEach(task => {
+      (task.sessions || []).forEach(session => {
+        if (!session.start) return;
+        const start = new Date(session.start);
+        const end = session.end ? new Date(session.end) : new Date();
 
-  const grid = document.createElement("div");
-  grid.className = "grid-gap"
-  grid.style.display = "grid";
-  grid.style.gridTemplateColumns = `repeat(7, minmax(0, 1fr))`;
-  grid.style.gridTemplateRows = `repeat(${maxY}, 1fr)`;
-  grid.style.width = "100%";
-  grid.style.aspectRatio = `7 / ${maxY}`;
-  grid.style.position = "relative";
-  grid.style.backgroundColor = "#fff";
-  grid.style.borderLeft = "2px solid #ccc";
-  grid.style.borderBottom = "2px solid #ccc";
+        for (let d = 0; d < 7; d++) {
+          const dayStart = new Date(startOfWeek);
+          dayStart.setDate(dayStart.getDate() + d);
+          const dayEnd = new Date(dayStart);
+          dayEnd.setHours(23, 59, 59, 999);
 
-  for (let row = 0; row < maxY; row++) {
-    for (let col = 0; col < 7; col++) {
-      const cell = document.createElement("div");
-      cell.style.border = "1px solid #ccc";
-      cell.style.boxSizing = "border-box";
-      cell.style.position = "relative";
-      cell.style.backgroundColor = "#fff";
+          const sessionStart = start < dayStart ? dayStart : start;
+          const sessionEnd = end > dayEnd ? dayEnd : end;
 
-      const taskDuration = dailyHours[col] || 0;
-      const currentHour = maxY - row;
-      const lowerBound = currentHour - 1;
+          if (sessionEnd > sessionStart) {
+            dailyDurations[d] += Math.floor((sessionEnd - sessionStart) / 1000);
+          }
+        }
+      });
+    });
 
-      let fillFraction = 0;
-      if (taskDuration > lowerBound) {
-        fillFraction = Math.min(taskDuration - lowerBound, 1);
-        if (fillFraction < 0) fillFraction = 0;
-      }
+    const rotatedDurations = dailyDurations.slice(1).concat(dailyDurations[0]);
+    const dailyHours = rotatedDurations.map(sec => sec / slotDuration);
+    const maxDuration = Math.max(...dailyHours, defaultHours);
+    const maxY = Math.ceil(maxDuration);
 
-      if (fillFraction > 0) {
-        const fillDiv = document.createElement("div");
-        fillDiv.style.position = "absolute";
-        fillDiv.style.bottom = "0";
-        fillDiv.style.left = "0";
-        fillDiv.style.width = "100%";
-        fillDiv.style.cursor = "pointer"
-        fillDiv.style.height = `max(${fillFraction * 100}%, 3px)`;
-        fillDiv.style.backgroundColor = "#1b1fec";
-        fillDiv.style.transition = "height 0.3s ease";
-        //fillDiv.title = `${daysOfWeek[col]}: ${taskDuration.toFixed(2)} hr`;
-        fillDiv.title = `${daysOfWeek[col]}: ${formatTime(rotatedDurations[col])}`;
+    const wrapper = document.createElement("div");
+    wrapper.id = "graph-wrapper";
+    wrapper.style.display = "grid";
+    wrapper.style.gridTemplateColumns = `36px 1fr`;
+    wrapper.style.width = "100%";
+    wrapper.style.alignItems = "stretch";
+    wrapper.style.gap = "0";
+    wrapper.style.marginTop = "15px";
 
-        cell.appendChild(fillDiv);
-      }
+    const yAxis = document.createElement("div");
+    yAxis.style.display = "flex";
+    yAxis.style.flexDirection = "column";
+    yAxis.style.justifyContent = "space-between";
+    yAxis.style.height = "100%";
+    yAxis.style.boxSizing = "border-box";
+    yAxis.style.paddingTop = "2px";
 
-      grid.appendChild(cell);
+    for (let i = maxY; i >= 0; i--) {
+      const label = document.createElement("div");
+      label.className = 'hour-space';
+      label.textContent = `${i} hr`;
+      label.style.height = "0";
+      label.style.lineHeight = "0";
+      label.style.transform = "translateY(-50%)";
+      label.style.position = "relative";
+      label.style.top = "0";
+      label.style.fontSize = "clamp(10px, 1vw, 14px)";
+      label.style.display = "flex";
+      label.style.alignItems = "center";
+      label.style.justifyContent = "flex-end";
+      yAxis.appendChild(label);
     }
+
+    const grid = document.createElement("div");
+    grid.className = "grid-gap";
+    grid.style.display = "grid";
+    grid.style.gridTemplateColumns = `repeat(7, minmax(0, 1fr))`;
+    grid.style.gridTemplateRows = `repeat(${maxY}, 1fr)`;
+    grid.style.width = "100%";
+    grid.style.aspectRatio = `7 / ${maxY}`;
+    grid.style.position = "relative";
+    grid.style.backgroundColor = "#fff";
+    grid.style.borderLeft = "2px solid #ccc";
+    grid.style.borderBottom = "2px solid #ccc";
+
+    for (let row = 0; row < maxY; row++) {
+      for (let col = 0; col < 7; col++) {
+        const cell = document.createElement("div");
+        cell.style.border = "1px solid #ccc";
+        cell.style.boxSizing = "border-box";
+        cell.style.position = "relative";
+        cell.style.backgroundColor = "#fff";
+
+        const taskDuration = dailyHours[col] || 0;
+        const currentHour = maxY - row;
+        const lowerBound = currentHour - 1;
+
+        let fillFraction = 0;
+        if (taskDuration > lowerBound) {
+          fillFraction = Math.min(taskDuration - lowerBound, 1);
+          if (fillFraction < 0) fillFraction = 0;
+        }
+
+        if (fillFraction > 0) {
+          const fillDiv = document.createElement("div");
+          fillDiv.style.position = "absolute";
+          fillDiv.style.bottom = "0";
+          fillDiv.style.left = "0";
+          fillDiv.style.width = "100%";
+          fillDiv.style.cursor = "pointer";
+          fillDiv.style.height = `max(${fillFraction * 100}%, 3px)`;
+          fillDiv.style.backgroundColor = "#1b1fec";
+          fillDiv.title = `${daysOfWeek[col]}: ${formatTime(rotatedDurations[col])}`;
+          cell.appendChild(fillDiv);
+        }
+
+        grid.appendChild(cell);
+      }
+    }
+
+    wrapper.appendChild(yAxis);
+    wrapper.appendChild(grid);
+
+    const yUnit = document.createElement("div");
+    yUnit.className = "yContent";
+    yUnit.textContent = "Duration (hr)";
+    yUnit.style.position = "absolute";
+    yUnit.style.transform = "rotate(-90deg)";
+    yUnit.style.transformOrigin = "left top";
+    yUnit.style.fontSize = "clamp(10px, 1vw, 14px)";
+    yUnit.style.textAlign = "center";
+    
+
+    weekContainer.appendChild(yUnit);
+    weekContainer.appendChild(wrapper);
+
+    const xLabels = document.createElement("div");
+    xLabels.style.display = "grid";
+    xLabels.style.gridTemplateColumns = `repeat(7, minmax(0, 1fr))`;
+    xLabels.style.marginTop = "5px";
+    xLabels.style.marginLeft = "19px";
+
+    daysOfWeek.forEach(day => {
+      const label = document.createElement("div");
+      label.textContent = day;
+      label.style.textAlign = "center";
+      label.style.fontSize = "clamp(10px, 1vw, 14px)";
+      xLabels.appendChild(label);
+    });
+
+    weekContainer.appendChild(xLabels);
+
+    const xUnit = document.createElement("div");
+    xUnit.textContent = "Day of Week";
+    xUnit.style.textAlign = "center";
+    xUnit.style.fontSize = "clamp(10px, 1vw, 14px)";
+    xUnit.style.marginTop = "15px";
+    weekContainer.appendChild(xUnit);
+
+    heading.textContent = isLastWeek
+      ? "Last Week's Task Duration Graph"
+      : "This Week's Task Duration Graph";
   }
 
-  wrapper.appendChild(yAxis);
-  wrapper.appendChild(grid);
+  thisWeekBtn.onclick = () => {
+    thisWeekBtn.style.backgroundColor = "#007bff";
+    lastWeekBtn.style.backgroundColor = "rgb(167 167 196)";
+    updateGraph(false);
+  };
 
-  const yUnit = document.createElement("div");
-  yUnit.className = "yContent"
-  yUnit.textContent = "Duration (hr)";
-  yUnit.style.position = "absolute";
-  yUnit.style.transform = "rotate(-90deg)";
-  yUnit.style.transformOrigin = "left top";
-  yUnit.style.fontSize = "clamp(10px, 1vw, 14px)";
-  yUnit.style.textAlign = "center";
-  weekContainer.appendChild(yUnit);
+  lastWeekBtn.onclick = () => {
+    lastWeekBtn.style.backgroundColor = "#007bff";
+    thisWeekBtn.style.backgroundColor = "rgb(167 167 196)";
+    updateGraph(true);
+  };
 
-  weekContainer.appendChild(wrapper);
-
-  // X-Axis Day Labels
-  const xLabels = document.createElement("div");
-  xLabels.style.display = "grid";
-  xLabels.style.gridTemplateColumns = `repeat(7, minmax(0, 1fr))`;
-  xLabels.style.marginTop = "5px";
-  xLabels.style.marginLeft = "19px";
-
-  daysOfWeek.forEach(day => {
-    const label = document.createElement("div");
-    label.textContent = day;
-    label.style.textAlign = "center";
-    label.style.fontSize = "clamp(10px, 1vw, 14px)";
-    xLabels.appendChild(label);
-  });
-
-  weekContainer.appendChild(xLabels);
-
-  const xUnit = document.createElement("div");
-  xUnit.textContent = "Day of Week";
-  xUnit.style.textAlign = "center";
-  xUnit.style.fontSize = "clamp(10px, 1vw, 14px)";
-  xUnit.style.marginTop = "15px";
-  weekContainer.appendChild(xUnit);
+  updateGraph(); 
 }
+
+
+
+function scrollToTask(taskName) {
+  viewMode = "tasks";
+  displaySections("tasks");
+  loadTasks();
+
+  setTimeout(() => {
+    const taskElements = document.querySelectorAll(".task");
+
+    for (const taskEl of taskElements) {
+      const nameEl = taskEl.querySelector("strong");
+      if (nameEl && nameEl.textContent.trim().toLowerCase() === taskName.trim().toLowerCase()) {
+        taskEl.scrollIntoView({ behavior: "smooth", block: "center" });
+        taskEl.style.backgroundColor = "#fff176"; 
+        setTimeout(() => {
+          taskEl.style.backgroundColor = "";
+        }, 1500);
+        break;
+      }
+    }
+  }, 200);
+}
+

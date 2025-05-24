@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
   <link rel="stylesheet" href="style.css" />
   <title>Time Tracker</title> 
 </head>
@@ -110,12 +112,28 @@
         <div id="user-tasks-list"></div>
       </div>
 
-      <div id="settings-section"  class="summary-box" style="display:none">
+      <!-- <div id="settings-section"  class="summary-box" style="display:none">
         <h3>Account Settings</h3>
         <div id="user-name" class="gap"></div>
         <div id="user-email" class="gap"></div>
         <button class="styled-btn delete-btn" onclick="deleteAccount()">Delete Account</button>
+      </div> -->
+      <div  id="settings-section" style="display:none">
+        <h3>Account Settings</h3> 
+        <div class="summary-box" >
+          <!-- <h3>Account Settings</h3> -->
+        
+          <!-- User Icon -->
+          <i class="fas fa-user-circle" style="font-size: 100px; color: black;"></i>
+        
+          <!-- User Info -->
+          <div id="user-name" class="gap"></div>
+          <div id="user-email" class="gap"></div>
+        
+          <button class="styled-btn delete-btn" onclick="deleteAccount()">Delete Account</button>
+        </div>
       </div>
+      
       
       <div id="graph-container"></div>
 

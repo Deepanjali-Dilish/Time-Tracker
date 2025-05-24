@@ -454,6 +454,18 @@ button.styled-btn{
   margin-top: 15px;
 }
 
+.this,
+.last{
+  padding:  2px 4px;
+}
+
+@media (min-width: 375px){
+  .this,
+  .last{
+    padding: 2px 8px;
+  }
+}
+
 
 @media (min-width: 768px) {
 
@@ -534,6 +546,11 @@ button.styled-btn{
 
   .grid-gap{
     column-gap: 18px;
+  }
+
+  .this,
+  .last{
+    padding: 10px 12px;
   }
 }
 
