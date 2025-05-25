@@ -1477,6 +1477,5 @@ function scrollToTask(taskName) {
         break;
       }
     }
-  }, 200);
+  }, 200); // scroll task
 }
-
