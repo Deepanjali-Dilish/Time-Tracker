@@ -1481,4 +1481,3 @@ function scrollToTask(taskName) {
     }
   }, 200); 
 }
-
