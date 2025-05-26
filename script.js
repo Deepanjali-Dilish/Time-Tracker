@@ -1223,7 +1223,9 @@ function weeklyStatus() {
   createWeeklyTaskDurationGraph(tasks); 
 }
 
+
 function createWeeklyTaskDurationGraph(tasks) {
+
   const weekContainer = document.getElementById("week-container");
   if (!weekContainer) return;
 
@@ -1479,3 +1481,4 @@ function scrollToTask(taskName) {
     }
   }, 200); 
 }
+
