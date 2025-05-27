@@ -1459,25 +1459,180 @@ function createWeeklyTaskDurationGraph(tasks) {
 }
 
 
+function showSearchTasks() {
+  showSearchBox();
 
-function scrollToTask(taskName) {
+}
+
+function searchTasks() {
+  const query = document.getElementById("search-input").value.toLowerCase().trim();
+
+ 
+  if (!query) {
+    document.getElementById("search-results").innerHTML = '';
+    return;
+  }
+
+  const user = JSON.parse(localStorage.getItem("loggedInUser"));
+  if (!user || !user.email) return;
+
+  const allTasks = JSON.parse(localStorage.getItem("userTasks")) || {};
+  const tasks = allTasks[user.email] || [];
+
+  const resultsList = document.getElementById("search-results");
+  resultsList.innerHTML = '';
+
+  const matches = tasks
+    .map((task, index) => ({ ...task, index }))
+    .filter(task => task.name.toLowerCase().includes(query));
+
+  if (matches.length === 0) {
+    resultsList.innerHTML = '<li>No matching tasks found.</li>';
+    return;
+  }
+
+  matches.forEach(task => {
+    const li = document.createElement("li");
+    li.innerHTML = `<a href="#" onclick="scrollToTask(${task.index})">${task.name}</a>`;
+    resultsList.appendChild(li);
+  });
+}
+
+
+
+function closeSearchBox() {
+  document.getElementById("search-task-container").style.display = "none";
+  document.getElementById("search-results").innerHTML = '';
+  document.getElementById("search-input").value = '';
+}
+
+
+
+function createSearchBox() {
+  if (document.getElementById("search-task-container")) return;
+
+  const container = document.createElement("div");
+  container.id = "search-task-container";
+  container.style.position = "fixed";
+  container.style.top = "20px";
+  container.style.left = "50%";
+  container.style.transform = "translateX(-50%)";
+  container.style.background = "white";
+  container.style.border = "1px solid #ccc";
+  container.style.padding = "15px 20px";
+  container.style.borderRadius = "8px";
+  container.style.boxShadow = "0 4px 12px rgba(0,0,0,0.15)";
+  container.style.zIndex = "9999";
+  container.style.width = "90%";
+  container.style.maxWidth = "500px";
+  container.style.boxSizing = "border-box";
+
+  const input = document.createElement("input");
+  input.type = "text";
+  input.id = "search-input";
+  input.placeholder = "Enter task name";
+  input.style.width = "100%";
+  input.style.padding = "8px 12px";
+  input.style.fontSize = "16px";
+  input.style.borderRadius = "4px";
+  input.style.border = "1px solid #ccc";
+  input.style.boxSizing = "border-box";
+
+  const searchBtn = document.createElement("button");
+  searchBtn.textContent = "Search";
+  searchBtn.style.marginTop = "10px";
+  searchBtn.style.padding = "8px 15px";
+  searchBtn.style.fontSize = "16px";
+  searchBtn.style.backgroundColor = "#1b1fec";
+  searchBtn.style.border = "none";
+  searchBtn.style.color = "white";
+  searchBtn.style.borderRadius = "4px";
+  searchBtn.style.cursor = "pointer";
+  searchBtn.onclick = searchTasks;
+
+  searchBtn.addEventListener("mouseover", () => {
+    searchBtn.style.backgroundColor = "#0f12b8";
+  });
+  searchBtn.addEventListener("mouseout", () => {
+    searchBtn.style.backgroundColor = "#1b1fec";
+  });
+
+  const resultsList = document.createElement("ul");
+  resultsList.id = "search-results";
+  resultsList.style.listStyle = "none";
+  resultsList.style.marginTop = "15px";
+  resultsList.style.paddingLeft = "0";
+  resultsList.style.maxHeight = "200px";
+  resultsList.style.overflowY = "auto";
+  resultsList.style.borderTop = "1px solid #eee";
+
+  const closeBtn = document.createElement("button");
+  closeBtn.textContent = "×";
+  closeBtn.style.position = "absolute";
+  closeBtn.style.top = "8px";
+  closeBtn.style.right = "12px";
+  closeBtn.style.background = "transparent";
+  closeBtn.style.border = "none";
+  closeBtn.style.fontSize = "22px";
+  closeBtn.style.fontWeight = "bold";
+  closeBtn.style.color = "#888";
+  closeBtn.style.cursor = "pointer";
+  closeBtn.onclick = () => {
+    container.style.display = "none";
+  };
+  closeBtn.addEventListener("mouseover", () => {
+    closeBtn.style.color = "#444";
+  });
+  closeBtn.addEventListener("mouseout", () => {
+    closeBtn.style.color = "#888";
+  });
+
+  container.appendChild(input);
+  container.appendChild(searchBtn);
+  container.appendChild(resultsList);
+  container.appendChild(closeBtn);
+
+  document.body.appendChild(container);
+}
+
+function showSearchBox() {
+  createSearchBox();
+  document.getElementById("search-task-container").style.display = "block";
+}
+
+function scrollToTask(identifier) {
   viewMode = "tasks";
   displaySections("tasks");
   loadTasks();
 
   setTimeout(() => {
-    const taskElements = document.querySelectorAll(".task");
+    let taskEl = null;
 
-    for (const taskEl of taskElements) {
-      const nameEl = taskEl.querySelector("strong");
-      if (nameEl && nameEl.textContent.trim().toLowerCase() === taskName.trim().toLowerCase()) {
-        taskEl.scrollIntoView({ behavior: "smooth", block: "center" });
-        taskEl.style.backgroundColor = "#fff176"; 
-        setTimeout(() => {
-          taskEl.style.backgroundColor = "";
-        }, 1500);
-        break;
+    
+    if (!isNaN(identifier)) {
+      const innerEl = document.querySelector(`#timer-display-${identifier}`);
+      if (innerEl) {
+        taskEl = innerEl.closest(".task");
+      }
+    } else {
+    
+      const taskElements = document.querySelectorAll(".task");
+      for (const el of taskElements) {
+        const nameEl = el.querySelector("strong");
+        if (nameEl && nameEl.textContent.trim().toLowerCase() === String(identifier).trim().toLowerCase()) {
+          taskEl = el; 
+          break;
+        }
       }
     }
-  }, 200); 
+
+    
+    if (taskEl) {
+      taskEl.scrollIntoView({ behavior: "smooth", block: "center" });
+      taskEl.style.backgroundColor = "#fff176"; // Full yellow block
+      setTimeout(() => {
+        taskEl.style.backgroundColor = "";
+      }, 1500);
+    }
+  }, 200);
 }
