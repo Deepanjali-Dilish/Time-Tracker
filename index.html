@@ -84,8 +84,14 @@
 
       <div id="tasks"></div>
 
-       <div id="search-task-container" style="display: nine;">
+       <!-- <div id="search-task-container" style="display: nine;">
         <input type="text" id="search-input" placeholder="Enter task name" />
+        <button onclick="searchTasks()">Search</button>
+        <ul id="search-results"></ul>
+        <button class="close-btn" onclick="closeSearchBox()">×</button>
+       </div> -->
+       <div id="search-task-container" style="display: none;">
+        <input type="text" id="search-input" placeholder="Enter task name"/>
         <button onclick="searchTasks()">Search</button>
         <ul id="search-results"></ul>
         <button class="close-btn" onclick="closeSearchBox()">×</button>
