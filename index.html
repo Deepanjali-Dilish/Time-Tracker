@@ -56,13 +56,13 @@
         <li id="add-task-nav" onclick="showAddTask()">Add Task</li>
         <li onclick="showTasks()">Taks List</li>
         <li style="display: flex; align-items: center; justify-content: space-between;">
-          <span onclick="showSearchTasks()" style="flex: 1; cursor: pointer;">Search Tasks</span>
+          <span onclick="showSearchTasks()" style="flex: 1; cursor: pointer;">Search Task</span>
           <span id="arrow" class="toggle-arrow" onclick="toggleSubmenu()" style="cursor: pointer;">&#9662;</span>
         </li>
         <li id="daily-tasks" onclick ="showDailyTasks()">Daily Tasks</li>
         <li id="status" onclick="showStatus()">Daily Status</li>
         <li id="week" onclick="weeklyStatus()">Weekly Status</li>
-        <li id="userTasks" onclick="showUser()">User</li>
+        <li id="userTasks" onclick="showUser()">User's task details</li>
         <li id="settings" onclick="showSettings()">Settings</li>
       </ul>
     </aside>
@@ -84,12 +84,6 @@
 
       <div id="tasks"></div>
 
-       <!-- <div id="search-task-container" style="display: nine;">
-        <input type="text" id="search-input" placeholder="Enter task name" />
-        <button onclick="searchTasks()">Search</button>
-        <ul id="search-results"></ul>
-        <button class="close-btn" onclick="closeSearchBox()">×</button>
-       </div> -->
        <div id="search-task-container" style="display: none;">
         <input type="text" id="search-input" placeholder="Enter task name"/>
         <button onclick="searchTasks()">Search</button>
@@ -118,21 +112,13 @@
         <div id="user-tasks-list"></div>
       </div>
 
-      <!-- <div id="settings-section"  class="summary-box" style="display:none">
-        <h3>Account Settings</h3>
-        <div id="user-name" class="gap"></div>
-        <div id="user-email" class="gap"></div>
-        <button class="styled-btn delete-btn" onclick="deleteAccount()">Delete Account</button>
-      </div> -->
       <div  id="settings-section" style="display:none">
         <h3>Account Settings</h3> 
         <div class="summary-box" >
           <!-- <h3>Account Settings</h3> -->
-        
-          <!-- User Icon -->
+    
           <i class="fas fa-user-circle" style="font-size: 100px; color: black;"></i>
-        
-          <!-- User Info -->
+     
           <div id="user-name" class="gap"></div>
           <div id="user-email" class="gap"></div>
         
