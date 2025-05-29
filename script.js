@@ -1626,104 +1626,92 @@ function scrollToTask(identifier) {
 }
 
 
-// function getTargetData(taskName) {
-//   const user = JSON.parse(localStorage.getItem("loggedInUser"));
-//   if (!user || !user.email) return null;
-
-//   const allTargets = JSON.parse(localStorage.getItem("targetTasks")) || {};
-//   const userTargets = allTargets[user.email] || [];
-
-//   return userTargets.find(task => task.name.toLowerCase() === taskName.toLowerCase());
-// }
-
-// function saveTarget() {
-//   const name = document.getElementById('target-task-name').value.trim();
-
-//   const hours = parseInt(document.getElementById('target-hours').value) || 0;
-//   const minutes = parseInt(document.getElementById('target-minutes').value) || 0;
-//   const targetSeconds = (hours * 3600) + (minutes * 60) + seconds;
-
-//   if (!name || isNaN(targetSeconds) || targetSeconds <= 0) {
-//     return alert('Please fill in task name and valid target time.');
-//   }
-
-//   const user = JSON.parse(localStorage.getItem("loggedInUser"));
-//   if (!user || !user.email) return alert("User not logged in.");
-
-//   const allTasks = JSON.parse(localStorage.getItem("userTasks")) || {};
-//   const userTasks = allTasks[user.email] || [];
-
-//   const task = userTasks.find(task => task.name.toLowerCase() === name.toLowerCase());
-//   if (!task) {
-//     return alert("Task not found. Please add the task first.");
-//   }
-
-//   const allTargets = JSON.parse(localStorage.getItem("targetTasks")) || {};
-//   const userTargets = allTargets[user.email] || [];
-
-//   const existingIndex = userTargets.findIndex(t => t.name.toLowerCase() === name.toLowerCase());
-//   if (existingIndex >= 0) {
-//     userTargets[existingIndex].targetSeconds = targetSeconds;
-//   } else {
-//     userTargets.push({ name, targetSeconds });
-//   }
-
-//   allTargets[user.email] = userTargets;
-//   localStorage.setItem("targetTasks", JSON.stringify(allTargets));
-
-//   alert("Target saved.");
-//   document.getElementById('target-section').style.display = 'none';
-
-//   loadTasks();             
-//   scrollToTask(name);      
-// }
-
-// function checkTargetStatus() {
-//   const user = JSON.parse(localStorage.getItem("loggedInUser"));
-//   if (!user || !user.email) return;
-
-//   const allTasks = JSON.parse(localStorage.getItem("userTasks")) || {};
-//   const allTargets = JSON.parse(localStorage.getItem("targetTasks")) || {};
-//   const userTasks = allTasks[user.email] || [];
-//   const userTargets = allTargets[user.email] || [];
-
-//   userTasks.forEach(task => {
-//     const target = userTargets.find(t => t.name.toLowerCase() === task.name.toLowerCase());
-//     if (target) {
-//       const actualTime = task.totalSeconds || 0;
-
-//       if (actualTime === target.targetSeconds) {
-//         alert(`🎯 Target met for "${task.name}"!`);
-//       } else if (actualTime > target.targetSeconds) {
-//         alert(`⚠️ Target exceeded for "${task.name}"!`);
-//       } else {
-//         alert(`❌ Target failed for "${task.name}". Only ${actualTime}s tracked vs ${target.targetSeconds}s target.`);
-//       }
-
-//       // Remove the target after evaluation (optional)
-//       // Comment this block if you want to keep the target
-//       const index = userTargets.indexOf(target);
-//       if (index !== -1) {
-//         userTargets.splice(index, 1);
-//         allTargets[user.email] = userTargets;
-//         localStorage.setItem("targetTasks", JSON.stringify(allTargets));
-//       }
-//     }
-//   });
-// }
-
-
-// function showTarget() {
-//   displaySections("target")
-// }
-
-
-function getTargetData(taskName){
-  const user = JSON.parse(localStorage.getItem("loggrdInUser"));
-  if(!user || user.email) return null;
+function getTargetData(taskName) {
+  const user = JSON.parse(localStorage.getItem("loggedInUser"));
+  if (!user || !user.email) return null;
 
   const allTargets = JSON.parse(localStorage.getItem("targetTasks")) || {};
   const userTargets = allTargets[user.email] || [];
 
-  return userTargets.find
+  return userTargets.find(task => task.name.toLowerCase() === taskName.toLowerCase());
 }
+
+function saveTarget() {
+  const name = document.getElementById('target-task-name').value.trim();
+
+  const hours = parseInt(document.getElementById('target-hours').value) || 0;
+  const minutes = parseInt(document.getElementById('target-minutes').value) || 0;
+  const targetSeconds = (hours * 3600) + (minutes * 60) + seconds;
+
+  if (!name || isNaN(targetSeconds) || targetSeconds <= 0) {
+    return alert('Please fill in task name and valid target time.');
+  }
+
+  const user = JSON.parse(localStorage.getItem("loggedInUser"));
+  if (!user || !user.email) return alert("User not logged in.");
+
+  const allTasks = JSON.parse(localStorage.getItem("userTasks")) || {};
+  const userTasks = allTasks[user.email] || [];
+
+  const task = userTasks.find(task => task.name.toLowerCase() === name.toLowerCase());
+  if (!task) {
+    return alert("Task not found. Please add the task first.");
+  }
+
+  const allTargets = JSON.parse(localStorage.getItem("targetTasks")) || {};
+  const userTargets = allTargets[user.email] || [];
+
+  const existingIndex = userTargets.findIndex(t => t.name.toLowerCase() === name.toLowerCase());
+  if (existingIndex >= 0) {
+    userTargets[existingIndex].targetSeconds = targetSeconds;
+  } else {
+    userTargets.push({ name, targetSeconds });
+  }
+
+  allTargets[user.email] = userTargets;
+  localStorage.setItem("targetTasks", JSON.stringify(allTargets));
+
+  alert("Target saved.");
+  document.getElementById('target-section').style.display = 'none';
+
+  loadTasks();             
+  scrollToTask(name);      
+}
+
+function checkTargetStatus() {
+  const user = JSON.parse(localStorage.getItem("loggedInUser"));
+  if (!user || !user.email) return;
+
+  const allTasks = JSON.parse(localStorage.getItem("userTasks")) || {};
+  const allTargets = JSON.parse(localStorage.getItem("targetTasks")) || {};
+  const userTasks = allTasks[user.email] || [];
+  const userTargets = allTargets[user.email] || [];
+
+  userTasks.forEach(task => {
+    const target = userTargets.find(t => t.name.toLowerCase() === task.name.toLowerCase());
+    if (target) {
+      const actualTime = task.totalSeconds || 0;
+
+      if (actualTime === target.targetSeconds) {
+        alert(`🎯 Target met for "${task.name}"!`);
+      } else if (actualTime > target.targetSeconds) {
+        alert(`⚠️ Target exceeded for "${task.name}"!`);
+      } else {
+        alert(`❌ Target failed for "${task.name}". Only ${actualTime}s tracked vs ${target.targetSeconds}s target.`);
+      }
+
+      const index = userTargets.indexOf(target);
+      if (index !== -1) {
+        userTargets.splice(index, 1);
+        allTargets[user.email] = userTargets;
+        localStorage.setItem("targetTasks", JSON.stringify(allTargets));
+      }
+    }
+  });
+}
+
+
+function showTarget() {
+  displaySections("target")
+}
+
