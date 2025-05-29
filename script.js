@@ -26,8 +26,9 @@ function showTasks() {
 function displaySections(sectionName) {
   document.getElementById("add-task-section").style.display = "none";
   document.getElementById("tasks-section").style.display = "none";
- // document.getElementById("search-task-container").style.display = "none";
+  //document.getElementById("search-task-container").style.display = "none";
   document.getElementById("summary-section").style.display = "none";
+  document.getElementById("target-section").style.display = "none"
   document.getElementById("user-tasks-section").style.display = "none";
   document.getElementById("settings-section").style.display = "none";
   document.getElementById("graph-container").style.display = "none";
@@ -44,8 +45,9 @@ function displaySections(sectionName) {
     case "tasks":
       document.getElementById("tasks-section").style.display = "block";
       break;
-
-     
+    case "target":
+      document.getElementById("target-section").style.display = "block";
+      break
     case "user":
       document.getElementById("user-tasks-section").style.display = "block";
       break;
@@ -109,7 +111,6 @@ function addTask() {
   loadTasks(); 
 }
 
-
 function editCurrentTask(index) {
   const user = JSON.parse(localStorage.getItem("loggedInUser"));
   if (!user || !user.email) return alert("User not logged in.");
@@ -147,34 +148,27 @@ function showIndividualTotal(task) {
 
 
 function loadTasks() {
-    const user = JSON.parse(localStorage.getItem("loggedInUser"));
-    if (!user || !user.email) return;
-  
-    const allTasks = JSON.parse(localStorage.getItem("userTasks")) || {};
-    const tasks = allTasks[user.email] || [];
-  
-    const taskContainer = document.getElementById("tasks");
-    taskContainer.innerHTML = '';
+  const user = JSON.parse(localStorage.getItem("loggedInUser"));
+  if (!user || !user.email) return;
 
+  const allTasks = JSON.parse(localStorage.getItem("userTasks")) || {};
+  const tasks = allTasks[user.email] || [];
 
+  const allTargets = JSON.parse(localStorage.getItem("targetTasks")) || {};
+  const userTargets = allTargets[user.email] || [];
 
-  //const todays = new Date().toISOString().split("T")[0];
-
-  //const todayTasks = tasks.filter(task => task.created === todays);
+  const taskContainer = document.getElementById("tasks");
+  taskContainer.innerHTML = '';
 
   const totalSecond = tasks.reduce((sum, task) => sum + calculateDuration(task), 0);
-
-
   document.getElementById("total-all").innerText = `Total time tracked of all tasks: ${formatTime(totalSecond)}`;
-
 
   const today = new Date().toISOString().split("T")[0];
   const startOfToday = new Date(today + "T00:00:00");
   const endOfToday = new Date(today + "T23:59:59.999");
 
   const totalSeconds = tasks.reduce((sum, task) => {
-  const sessions = task.sessions || [];
-
+    const sessions = task.sessions || [];
     return sum + sessions.reduce((taskSum, session) => {
       const start = session.start ? new Date(session.start) : null;
       const stop = session.end ? new Date(session.end) : new Date();
@@ -192,38 +186,30 @@ function loadTasks() {
     }, 0);
   }, 0);
 
-  
-  document.getElementById("total-time").innerText =`Total Time Tracked Today: ${formatTime(totalSeconds)}`;
+  document.getElementById("total-time").innerText = `Total Time Tracked Today: ${formatTime(totalSeconds)}`;
 
-
-  
   const completedList = document.getElementById("completed-tasks-list");
   completedList.innerHTML = '';
-  
+
   if (viewMode === "dashboard") {
     const completedTasks = tasks
       .filter(task => task.completed)
       .sort((a, b) => new Date(b.endTime) - new Date(a.endTime));
-  
-  
-      completedTasks.forEach(task => {
-        const li = document.createElement("li");
-        //li.innerHTML = `<strong>${task.name}</strong> - ${formatTime(calculateDuration(task))}`;
-        li.innerHTML = `<a href="#" onclick="scrollToTask('${task.name}')"><strong style="color: black">${task.name}</strong></a> - ${formatTime(calculateDuration(task))}`;
 
-        completedList.appendChild(li);
-      });
+    completedTasks.forEach(task => {
+      const li = document.createElement("li");
+      li.innerHTML = `<a href="#" onclick="scrollToTask('${task.name}')"><strong style="color: black">${task.name}</strong></a> - ${formatTime(calculateDuration(task))}`;
+      completedList.appendChild(li);
+    });
   }
-  
+
   const recentList = document.getElementById("recent-tasks-list");
   recentList.innerHTML = '';
   tasks.slice(-3).reverse().forEach(task => {
     const item = document.createElement("li");
-    //item.textContent = task.name;
     item.innerHTML = `<a href="#" onclick="scrollToTask('${task.name}')"><strong style="color: black">${task.name}</strong></a>`;
-
     recentList.appendChild(item);
-  });``
+  });
 
   if (viewMode === "user") return;
 
@@ -232,14 +218,13 @@ function loadTasks() {
     const task = tasks[currentTaskIndex];
     const taskEl = document.createElement("div");
     taskEl.className = "task";
-    //taskEl.id = `task-${index}`;
 
     taskEl.innerHTML = `
       <strong>${task.name}</strong>
       <p><strong>Time:</strong> ${formatTime(calculateDuration(task))}</p>
     `;
     taskContainer.appendChild(taskEl);
-  }else if (viewMode === "tasks") {
+  } else if (viewMode === "tasks") {
     if (tasks.length === 0) {
       taskContainer.innerHTML = '<p class="task-space">No tasks available. Add a new task.</p>';
     } else {
@@ -247,6 +232,9 @@ function loadTasks() {
         const taskEl = document.createElement("div");
         taskEl.className = "task";
         taskEl.style.cursor = "pointer";
+
+        const target = userTargets.find(t => t.name.toLowerCase() === task.name.toLowerCase());
+       // const targetDisplay = target ? target.targetStr || formatTime(target.targetSeconds) : 'No target set';
 
         let statusText = "";
         let statusColor = "";
@@ -273,6 +261,8 @@ function loadTasks() {
           </p>
           <strong>${task.name}</strong>
           <p class="space">${task.description}</p>
+          ${target ? `<p><strong>Target Time:</strong> ${target.targetStr || formatTime(target.targetSeconds)}</p>` : ''}
+
           <p><strong>Timer ⏱ :</strong> <span id="timer-display-${index}">${formatTime(calculateDuration(task))}</span></p>
           <div class="tasks" style="margin-top: 10px">
             ${task.completed ? '' : `
@@ -298,6 +288,7 @@ function loadTasks() {
     }
   }
 }
+
 
 
 function taskCompleted(index) {
@@ -361,7 +352,6 @@ function toggleSubmenu() {
   const status = document.getElementById("status");
   const week = document.getElementById("week");
   const settings = document.getElementById("settings");
-  const search = document.getElementById("search-tasks")
   const arrow = document.getElementById("arrow");
 
   const isVisible = dailyTasks.style.display === "block";
@@ -370,9 +360,9 @@ function toggleSubmenu() {
   status.style.display = isVisible ? "none" : "block";
   week.style.display = isVisible ? "none" : "block";
   settings.style.display = isVisible ? "none" : "block";
- // search.style.display = isVisible ? "none" : "block";
   arrow.innerHTML = isVisible ? "&#9662;" : "&#9650;";
 }
+
 
 
 function showDailyTasks() {
@@ -478,7 +468,6 @@ function startTaskTimer(index) {
 }
 
 
-
 function stopTaskTimer() {
   if (timerInterval) clearInterval(timerInterval);
   if (currentTaskIndex === null) return;
@@ -516,15 +505,13 @@ function stopTaskTimer() {
     clearInterval(runningTaskInterval);
     runningTaskInterval = null;
   }
-  
+
   loadTasks();
   updateRunningTask();
-  
   currentTaskIndex = null;
-  
 
+  checkTargetStatus();
 }
-
 
 
 function updateTimerDisplay(index) {
@@ -752,6 +739,7 @@ function showLogin() {
 
 
 window.onload = function () {
+
    
   
   const user = JSON.parse(localStorage.getItem("loggedInUser"));
@@ -1635,4 +1623,107 @@ function scrollToTask(identifier) {
       }, 1500);
     }
   }, 200);
+}
+
+
+// function getTargetData(taskName) {
+//   const user = JSON.parse(localStorage.getItem("loggedInUser"));
+//   if (!user || !user.email) return null;
+
+//   const allTargets = JSON.parse(localStorage.getItem("targetTasks")) || {};
+//   const userTargets = allTargets[user.email] || [];
+
+//   return userTargets.find(task => task.name.toLowerCase() === taskName.toLowerCase());
+// }
+
+// function saveTarget() {
+//   const name = document.getElementById('target-task-name').value.trim();
+
+//   const hours = parseInt(document.getElementById('target-hours').value) || 0;
+//   const minutes = parseInt(document.getElementById('target-minutes').value) || 0;
+//   const targetSeconds = (hours * 3600) + (minutes * 60) + seconds;
+
+//   if (!name || isNaN(targetSeconds) || targetSeconds <= 0) {
+//     return alert('Please fill in task name and valid target time.');
+//   }
+
+//   const user = JSON.parse(localStorage.getItem("loggedInUser"));
+//   if (!user || !user.email) return alert("User not logged in.");
+
+//   const allTasks = JSON.parse(localStorage.getItem("userTasks")) || {};
+//   const userTasks = allTasks[user.email] || [];
+
+//   const task = userTasks.find(task => task.name.toLowerCase() === name.toLowerCase());
+//   if (!task) {
+//     return alert("Task not found. Please add the task first.");
+//   }
+
+//   const allTargets = JSON.parse(localStorage.getItem("targetTasks")) || {};
+//   const userTargets = allTargets[user.email] || [];
+
+//   const existingIndex = userTargets.findIndex(t => t.name.toLowerCase() === name.toLowerCase());
+//   if (existingIndex >= 0) {
+//     userTargets[existingIndex].targetSeconds = targetSeconds;
+//   } else {
+//     userTargets.push({ name, targetSeconds });
+//   }
+
+//   allTargets[user.email] = userTargets;
+//   localStorage.setItem("targetTasks", JSON.stringify(allTargets));
+
+//   alert("Target saved.");
+//   document.getElementById('target-section').style.display = 'none';
+
+//   loadTasks();             
+//   scrollToTask(name);      
+// }
+
+// function checkTargetStatus() {
+//   const user = JSON.parse(localStorage.getItem("loggedInUser"));
+//   if (!user || !user.email) return;
+
+//   const allTasks = JSON.parse(localStorage.getItem("userTasks")) || {};
+//   const allTargets = JSON.parse(localStorage.getItem("targetTasks")) || {};
+//   const userTasks = allTasks[user.email] || [];
+//   const userTargets = allTargets[user.email] || [];
+
+//   userTasks.forEach(task => {
+//     const target = userTargets.find(t => t.name.toLowerCase() === task.name.toLowerCase());
+//     if (target) {
+//       const actualTime = task.totalSeconds || 0;
+
+//       if (actualTime === target.targetSeconds) {
+//         alert(`🎯 Target met for "${task.name}"!`);
+//       } else if (actualTime > target.targetSeconds) {
+//         alert(`⚠️ Target exceeded for "${task.name}"!`);
+//       } else {
+//         alert(`❌ Target failed for "${task.name}". Only ${actualTime}s tracked vs ${target.targetSeconds}s target.`);
+//       }
+
+//       // Remove the target after evaluation (optional)
+//       // Comment this block if you want to keep the target
+//       const index = userTargets.indexOf(target);
+//       if (index !== -1) {
+//         userTargets.splice(index, 1);
+//         allTargets[user.email] = userTargets;
+//         localStorage.setItem("targetTasks", JSON.stringify(allTargets));
+//       }
+//     }
+//   });
+// }
+
+
+// function showTarget() {
+//   displaySections("target")
+// }
+
+
+function getTargetData(taskName){
+  const user = JSON.parse(localStorage.getItem("loggrdInUser"));
+  if(!user || user.email) return null;
+
+  const allTargets = JSON.parse(localStorage.getItem("targetTasks")) || {};
+  const userTargets = allTargets[user.email] || [];
+
+  return userTargets.find
 }

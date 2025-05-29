@@ -55,6 +55,7 @@
         <li onclick="showDashboard()">Dashboard</li>
         <li id="add-task-nav" onclick="showAddTask()">Add Task</li>
         <li onclick="showTasks()">Taks List</li>
+        <li id="target" onclick="showTarget()">Set Traget</li>
         <li style="display: flex; align-items: center; justify-content: space-between;">
           <span onclick="showSearchTasks()" style="flex: 1; cursor: pointer;">Search Task</span>
           <span id="arrow" class="toggle-arrow" onclick="toggleSubmenu()" style="cursor: pointer;">&#9662;</span>
@@ -90,6 +91,18 @@
         <ul id="search-results"></ul>
         <button class="close-btn" onclick="closeSearchBox()">×</button>
        </div>
+
+       <div id="target-section" style="display:none;">
+        <h3>Set Target</h3>
+        <input type="text" id="target-task-name" placeholder="Enter Task Name" />
+        <input type="number" id="target-hours" placeholder="HH" min="0" style="width:60px;" />
+        <input type="number" id="target-minutes" placeholder="MM" min="0" max="59" style="width:60px;" />
+        <input type="number" id="target-seconds" placeholder="SS" min="0" max="59" style="width:60px;" />
+        
+        <button onclick="saveTarget()">Save Target</button>
+
+        <!-- <button onclick="editTarget()">Edit</button> -->
+      </div>
 
       <div id="summary-section">
         <div id="running-task" class="summary-box">No task is currently running</div>

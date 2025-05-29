@@ -634,6 +634,10 @@ button.styled-btn{
   .last{
     padding: 10px 12px;
   }
+
+  #submenu-items{
+    display: block;
+  }
 }
 
 @media screen and (min-width: 1330px){
