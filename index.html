@@ -55,7 +55,7 @@
         <li onclick="showDashboard()">Dashboard</li>
         <li id="add-task-nav" onclick="showAddTask()">Add Task</li>
         <li onclick="showTasks()">Taks List</li>
-        <li id="target" onclick="showTarget()">Set Traget</li>
+        <li id="target" onclick="showTarget()">Set Traget Time</li>
         <li style="display: flex; align-items: center; justify-content: space-between;">
           <span onclick="showSearchTasks()" style="flex: 1; cursor: pointer;">Search Task</span>
           <span id="arrow" class="toggle-arrow" onclick="toggleSubmenu()" style="cursor: pointer;">&#9662;</span>
@@ -93,13 +93,15 @@
        </div>
 
        <div id="target-section" style="display:none;">
-        <h3>Set Target</h3>
+        <h3 class="title-add">Set Target</h3>
         <input type="text" id="target-task-name" placeholder="Enter Task Name" />
-        <input type="number" id="target-hours" placeholder="HH" min="0" style="width:60px;" />
-        <input type="number" id="target-minutes" placeholder="MM" min="0" max="59" style="width:60px;" />
-        <input type="number" id="target-seconds" placeholder="SS" min="0" max="59" style="width:60px;" />
+        <div class="btns">
+          <input type="number" id="target-hours" placeholder="HH" min="0" style="width:60px;" />
+          <input type="number" id="target-minutes" placeholder="MM" min="0" max="59" style="width:60px;" />
+          <input type="number" id="target-seconds" placeholder="SS" min="0" max="59" style="width:60px;" />
         
-        <button onclick="saveTarget()">Save Target</button>
+        <button class="styled-btn" onclick="saveTarget()">Save Target</button>
+        </div>
 
         <!-- <button onclick="editTarget()">Edit</button> -->
       </div>

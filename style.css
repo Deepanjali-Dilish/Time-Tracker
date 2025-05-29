@@ -41,7 +41,8 @@ body{
 
 input[type="email"],
 input[type="text"],
-input[type="password"]{
+input[type="password"],
+input[type="number"]{
   width: 100%;
   padding: 12px 10px;
   margin: 8px 0;
@@ -637,6 +638,9 @@ button.styled-btn{
 
   #submenu-items{
     display: block;
+  }
+  .btns{
+    margin-top: 20px;
   }
 }
 

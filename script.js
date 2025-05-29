@@ -261,7 +261,7 @@ function loadTasks() {
           </p>
           <strong>${task.name}</strong>
           <p class="space">${task.description}</p>
-          ${target ? `<p><strong>Target Time:</strong> ${target.targetStr || formatTime(target.targetSeconds)}</p>` : ''}
+          ${target ? `<p><strong>Target Time  ⏱ :</strong> ${target.targetStr || formatTime(target.targetSeconds)}</p>` : ''}
 
           <p><strong>Timer ⏱ :</strong> <span id="timer-display-${index}">${formatTime(calculateDuration(task))}</span></p>
           <div class="tasks" style="margin-top: 10px">
@@ -1625,23 +1625,28 @@ function scrollToTask(identifier) {
   }, 200);
 }
 
-
-function getTargetData(taskName) {
-  const user = JSON.parse(localStorage.getItem("loggedInUser"));
-  if (!user || !user.email) return null;
-
-  const allTargets = JSON.parse(localStorage.getItem("targetTasks")) || {};
-  const userTargets = allTargets[user.email] || [];
-
-  return userTargets.find(task => task.name.toLowerCase() === taskName.toLowerCase());
+function showTarget() {
+  displaySections("target")
 }
+
+
+
+// function getTargetData(taskName) {
+//   const user = JSON.parse(localStorage.getItem("loggedInUser"));
+//   if (!user || !user.email) return null;
+
+//   const allTargets = JSON.parse(localStorage.getItem("targetTasks")) || {};
+//   const userTargets = allTargets[user.email] || [];
+
+//   return userTargets.find(task => task.name.toLowerCase() === taskName.toLowerCase());
+// }
 
 function saveTarget() {
   const name = document.getElementById('target-task-name').value.trim();
-
   const hours = parseInt(document.getElementById('target-hours').value) || 0;
   const minutes = parseInt(document.getElementById('target-minutes').value) || 0;
-  const targetSeconds = (hours * 3600) + (minutes * 60) + seconds;
+
+  const targetSeconds = (hours * 3600) + (minutes * 60);
 
   if (!name || isNaN(targetSeconds) || targetSeconds <= 0) {
     return alert('Please fill in task name and valid target time.');
@@ -1672,11 +1677,18 @@ function saveTarget() {
   localStorage.setItem("targetTasks", JSON.stringify(allTargets));
 
   alert("Target saved.");
-  document.getElementById('target-section').style.display = 'none';
 
-  loadTasks();             
-  scrollToTask(name);      
+  document.getElementById('target-task-name').value = '';
+  document.getElementById('target-hours').value = '';
+  document.getElementById('target-minutes').value = '';
+  document.getElementById("target-seconds").value = '';
+
+  //document.getElementById('target-section').style.display = 'none';
+
+  loadTasks();
+  scrollToTask(name);
 }
+
 
 function checkTargetStatus() {
   const user = JSON.parse(localStorage.getItem("loggedInUser"));
@@ -1693,11 +1705,11 @@ function checkTargetStatus() {
       const actualTime = task.totalSeconds || 0;
 
       if (actualTime === target.targetSeconds) {
-        alert(`🎯 Target met for "${task.name}"!`);
+        alert(` Target met for "${task.name}"!`);
       } else if (actualTime > target.targetSeconds) {
-        alert(`⚠️ Target exceeded for "${task.name}"!`);
+        alert(` Target exceeded for "${task.name}"!`);
       } else {
-        alert(`❌ Target failed for "${task.name}". Only ${actualTime}s tracked vs ${target.targetSeconds}s target.`);
+        alert(` Target failed for "${task.name}". `);
       }
 
       const index = userTargets.indexOf(target);
@@ -1709,9 +1721,3 @@ function checkTargetStatus() {
     }
   });
 }
-
-
-function showTarget() {
-  displaySections("target")
-}
-
