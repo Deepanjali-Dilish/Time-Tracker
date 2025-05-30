@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-  <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <link rel="stylesheet" href="style.css" />
@@ -85,26 +84,14 @@
 
       <div id="tasks"></div>
 
-       <div id="search-task-container" style="display: none;">
-        <input type="text" id="search-input" placeholder="Enter task name"/>
-        <button onclick="searchTasks()">Search</button>
-        <ul id="search-results"></ul>
-        <button class="close-btn" onclick="closeSearchBox()">×</button>
-       </div>
-
        <div id="target-section" style="display:none;">
-        <h3 class="title-add">Set Target</h3>
-        <input type="text" id="target-task-name" placeholder="Enter Task Name" />
-        <div class="btns">
+          <h3 class="title-add">Set Target</h3>
+          <input type="text" id="target-task-name" placeholder="Enter Task Name" />
           <input type="number" id="target-hours" placeholder="HH" min="0" style="width:60px;" />
           <input type="number" id="target-minutes" placeholder="MM" min="0" max="59" style="width:60px;" />
           <input type="number" id="target-seconds" placeholder="SS" min="0" max="59" style="width:60px;" />
-        
-        <button class="styled-btn" onclick="saveTarget()">Save Target</button>
+          <button class="styled-btn" onclick="saveTarget()">Save Target</button>
         </div>
-
-        <!-- <button onclick="editTarget()">Edit</button> -->
-      </div>
 
       <div id="summary-section">
         <div id="running-task" class="summary-box">No task is currently running</div>
@@ -130,7 +117,6 @@
       <div  id="settings-section" style="display:none">
         <h3>Account Settings</h3> 
         <div class="summary-box" >
-          <!-- <h3>Account Settings</h3> -->
     
           <i class="fas fa-user-circle" style="font-size: 100px; color: black;"></i>
      

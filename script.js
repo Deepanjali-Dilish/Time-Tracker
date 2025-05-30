@@ -26,7 +26,6 @@ function showTasks() {
 function displaySections(sectionName) {
   document.getElementById("add-task-section").style.display = "none";
   document.getElementById("tasks-section").style.display = "none";
-  //document.getElementById("search-task-container").style.display = "none";
   document.getElementById("summary-section").style.display = "none";
   document.getElementById("target-section").style.display = "none"
   document.getElementById("user-tasks-section").style.display = "none";
@@ -234,8 +233,6 @@ function loadTasks() {
         taskEl.style.cursor = "pointer";
 
         const target = userTargets.find(t => t.name.toLowerCase() === task.name.toLowerCase());
-       // const targetDisplay = target ? target.targetStr || formatTime(target.targetSeconds) : 'No target set';
-
         let statusText = "";
         let statusColor = "";
         let borderColor = "";
@@ -379,11 +376,6 @@ function showDailyTasks() {
 
   console.log('All Tasks from LocalStorage:', tasks);
   console.log('Today\'s Date:', today);
-
-  // const dailyTasks = tasks.filter(task => {
-  //   console.log('Comparing:', task.created, 'with', today);
-  //   return task.created === today;
-  // });
 
   const dailyTasks = tasks.filter(task => {
     if (!task.created) return false;
@@ -712,19 +704,6 @@ function forgotPassword() {
     alert("Password must be at least 8 characters long.");
   }
 }
-
-// function showStatus() {
-//   viewMode = "status";
-//   displaySections("status");
-//   createTaskDurationGraph(tasks) ; 
-// }
-
-
-// function weeklyStatus() {
-//   viewMode = "week";
-//   displaySections("week");
-  
-// }
 
 
 function showSignup() {
@@ -1481,7 +1460,7 @@ function searchTasks() {
 
   matches.forEach(task => {
     const li = document.createElement("li");
-    li.innerHTML = `<a href="#" onclick="scrollToTask(${task.index})">${task.name}</a>`;
+    li.innerHTML = `<a href="#" onclick="scrollToTask(${task.index})"><strong style="color: black">${task.name}</strong></a>`;
     resultsList.appendChild(li);
   });
 }
@@ -1523,7 +1502,9 @@ function createSearchBox() {
   input.style.padding = "8px 12px";
   input.style.fontSize = "16px";
   input.style.borderRadius = "4px";
-  input.style.border = "1px solid #ccc";
+  input.style.outline = "none";
+  input.style.borderColor = "#5a4ff3";
+  //input.style.border = "1px solid #ccc";
   input.style.boxSizing = "border-box";
 
   const searchBtn = document.createElement("button");
@@ -1531,11 +1512,12 @@ function createSearchBox() {
   searchBtn.style.marginTop = "10px";
   searchBtn.style.padding = "8px 15px";
   searchBtn.style.fontSize = "16px";
-  searchBtn.style.backgroundColor = "#1b1fec";
+  searchBtn.style.background = "linear-gradient(90deg, #5A4FF3, #3d8bff)";
   searchBtn.style.border = "none";
   searchBtn.style.color = "white";
   searchBtn.style.borderRadius = "4px";
   searchBtn.style.cursor = "pointer";
+  searchBtn.style.fontWeight = "bold"
   searchBtn.onclick = searchTasks;
 
   searchBtn.addEventListener("mouseover", () => {
@@ -1557,8 +1539,8 @@ function createSearchBox() {
   const closeBtn = document.createElement("button");
   closeBtn.textContent = "×";
   closeBtn.style.position = "absolute";
-  closeBtn.style.top = "8px";
-  closeBtn.style.right = "12px";
+  closeBtn.style.top = "0px";
+  closeBtn.style.right = "9px";
   closeBtn.style.background = "transparent";
   closeBtn.style.border = "none";
   closeBtn.style.fontSize = "22px";
@@ -1567,7 +1549,10 @@ function createSearchBox() {
   closeBtn.style.cursor = "pointer";
   closeBtn.onclick = () => {
     container.style.display = "none";
+    input.value = '';
+    resultsList.innerHTML = '';
   };
+  
   closeBtn.addEventListener("mouseover", () => {
     closeBtn.style.color = "#444";
   });
@@ -1628,18 +1613,6 @@ function scrollToTask(identifier) {
 function showTarget() {
   displaySections("target")
 }
-
-
-
-// function getTargetData(taskName) {
-//   const user = JSON.parse(localStorage.getItem("loggedInUser"));
-//   if (!user || !user.email) return null;
-
-//   const allTargets = JSON.parse(localStorage.getItem("targetTasks")) || {};
-//   const userTargets = allTargets[user.email] || [];
-
-//   return userTargets.find(task => task.name.toLowerCase() === taskName.toLowerCase());
-// }
 
 function saveTarget() {
   const name = document.getElementById('target-task-name').value.trim();

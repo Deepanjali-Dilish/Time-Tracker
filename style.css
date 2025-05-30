@@ -109,16 +109,17 @@ input::placeholder{
 
 .top-bar button{
   padding: 10px 20px;
-  background: #007bff;
+  background: linear-gradient(90deg, #5A4FF3, #3d8bff);
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   font-size: 14px;
+  font-weight: bold;
 }
 
 .top-bar button:hover{
-  background: #0056b3;
+  background:  #1b95ec;
 }
 
 .login-popup{
@@ -227,6 +228,36 @@ main.main-content{
   transition: border-color 0.3s, box-shadow 0.3s;
 }
 
+#target-task-name,
+#search-input{
+  width: 100%;
+  padding: 12px 15px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 1rem;
+  background: #fff;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+#target-task-name::placeholder,
+#target-hours::placeholder,
+#target-minutes::placeholder,
+#target-seconds::placeholder,
+#search-input::placeholder{
+  color: grey;
+}
+
+#target-task-name:focus,
+#target-hours:focus,
+#target-minutes:focus,
+#target-seconds:focus{
+  outline: none;
+  border-color: #5a4ff3;
+  box-shadow: 0 0 0 2px rgba(90, 79, 243, 0.2);
+}
+
+
 #add-task-section input[type="text"]:focus,
 #add-task-section textarea:focus{
   outline: none;
@@ -308,10 +339,7 @@ button.styled-btn{
   border-top:  1px solid #ddd;
   width: 100%;
   margin-top: auto;
-  /* position: fixed;
-  bottom:  0;
-  width: 100%;
-  z-index: 100; */
+
 }
 
 .footer-left, 
@@ -460,88 +488,6 @@ button.styled-btn{
   padding:  2px 4px;
 }
 
-
-
-#search-task-container {
-  position: fixed;         
-  top: 20px;              
-  left: 50%;               
-  transform: translateX(-50%);
-  background: white;
-  border: 1px solid #ccc;
-  padding: 15px 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  z-index: 9999;           
-  width: 90%;
-  max-width: 500px;
-  box-sizing: border-box;
-}
-
-#search-task-container input#search-input {
-  width: 100%;
-  padding: 8px 12px;
-  font-size: 16px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  box-sizing: border-box;
-}
-
-#search-task-container button {
-  margin-top: 10px;
-  padding: 8px 15px;
-  font-size: 16px;
-  background-color: #1b1fec;
-  border: none;
-  color: white;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-#search-task-container button:hover {
-  background-color: #0f12b8;
-}
-
-#search-results {
-  list-style: none;
-  margin-top: 15px;
-  padding-left: 0;
-  max-height: 200px;
-  overflow-y: auto;
-  border-top: 1px solid #eee;
-}
-
-#search-results li {
-  padding: 8px 5px;
-  border-bottom: 1px solid #eee;
-}
-
-#search-results li a {
-  color: #1b1fec;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-#search-results li a:hover {
-  text-decoration: underline;
-}
-
-#search-task-container .close-btn {
-  position: absolute;
-  top: 8px;
-  right: 12px;
-  background: transparent;
-  border: none;
-  font-size: 22px;
-  font-weight: bold;
-  color: #888;
-  cursor: pointer;
-}
-
-#search-task-container .close-btn:hover {
-  color: #444;
-}
 @media (min-width: 375px){
   .this,
   .last{
